@@ -417,7 +417,7 @@ class Construction:
 
         return Y22
 
-    def internal_areal_heat_capacity(self) -> float:
+    def internal_area_heat_capacity(self) -> float:
         "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K)"
         Zee = self.construction_transfer_matrix()
         kappa = ((self.time * 3600)  # time in seconds
@@ -429,7 +429,7 @@ class Construction:
 
         return kappa/3600 # Wh/(m2 K)
 
-    def external_areal_heat_capacity(self) -> float:
+    def external_area_heat_capacity(self) -> float:
         "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K)"
         Zee = self.construction_transfer_matrix()
         kappa = ((self.time * 3600)  # time in seconds
@@ -501,5 +501,5 @@ class Construction:
             "|Y12|": self.periodic_thermal_transmittance(),
             "phase shift": self.phase_shift(),
             "decrement factor": abs(self.decrement_factor()),
-            "internal area heat capacity": self.internal_areal_heat_capacity(),
+            "internal area heat capacity": self.internal_area_heat_capacity(),
         }
