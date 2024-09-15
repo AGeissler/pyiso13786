@@ -246,7 +246,7 @@ class Space:
         """
         return {
             "name": self.name,
-            "net_floor_area": self.net_floor_area,
+            "net floor area": self.net_floor_area,
             "energy reference area": self.eff_energy_reference_area(),
             "surface areas": self.surface_areas(),
             "effective net floor area": self.surface_areas()[4],
