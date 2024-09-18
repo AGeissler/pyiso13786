@@ -220,7 +220,7 @@ class Space:
                + str("%.3f" % round(self.energy_reference_area(), 3)) + ", m2\n"
         res += "surface areas = " + str(self.surface_areas()) + ", m2\n"
         res += "effective net floor area = "\
-               + str("%.3f" % round(self.surface_areas()[4], 3)) + ", m2\n"
+               + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
         res += "facade area = " + str("%.3f" % round(self.facade_area(), 3)) + ", m2\n"
         res += "window-to-wall ratio = " + str(self.window_to_wall_ratio) + "\n"
@@ -249,7 +249,7 @@ class Space:
             "net floor area": self.net_floor_area,
             "energy reference area": self.eff_energy_reference_area(),
             "surface areas": self.surface_areas(),
-            "effective net floor area": self.surface_areas()[4],
+            "effective net floor area": self.eff_net_floor_area,
             "deeper than": self.deeper_than,
             "net deep area": self.net_deep_area(),
             "facade area": self.facade_area(),
