@@ -1,7 +1,11 @@
 """ A class for a box-like space. 
-    
-    The basic assumption (for now) is that width x height is the area of
-    the (single) external wall which includes glazing surfaces."""
+
+    Width x height is the (internal) area of the (single) external wall
+    which includes a window. The window area is calculated as
+
+         window_area = width x height x window_to_wall_ratio.
+
+    """
 
 import sys
 from dataclasses import dataclass
@@ -12,8 +16,9 @@ from .construction import Construction
 @dataclass
 class Space:
     """ Calculate heat capacity of box-like space. The basic assumption
-    (for now) is that width x height is the area of the external wall
-    which includes the window with a given window-to-wall ratio.
+    (for now) is that width x height is the (internal) area of the
+    external wall which includes the window with a given window-to-wall
+    ratio.
 
     The seven construction types are given as a list of tuples, the first
     element is a descriptive string for which surface the construction
@@ -132,9 +137,9 @@ class Space:
         return area
 
     def window_area(self) -> float:
-        """ Window area.
+        """ Window area calculated from internal view WWR.
         """
-        return self.facade_area()*self.window_to_wall_ratio
+        return self.width*self.height*self.window_to_wall_ratio
 
     def window_fraction(self) -> float:
         """ Window fraction defined as window area per net floor area.
@@ -145,7 +150,8 @@ class Space:
         """ Glass fraction defined as glazing area per (external) facade
             area.
         """
-        return (1-self.window_frame_fraction)*self.window_to_wall_ratio
+        glazing_area = (1-self.window_frame_fraction)*self.window_area()
+        return glazing_area/self.facade_area()
 
     def opening_dimensions(self, high=False):
         """ Opening dimensions of a ventilation window based on the
@@ -223,6 +229,8 @@ class Space:
                + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
         res += "facade area = " + str("%.3f" % round(self.facade_area(), 3)) + ", m2\n"
+        res += "window area = "\
+               + str("%.3f" % round(self.window_area(), 3)) + ", %\n"
         res += "window-to-wall ratio = " + str(self.window_to_wall_ratio) + "\n"
         res += "window fraction = "\
                + str("%.3f" % round(self.window_fraction(), 3)) + ", %\n"
@@ -253,6 +261,7 @@ class Space:
             "deeper than": self.deeper_than,
             "net deep area": self.net_deep_area(),
             "facade area": self.facade_area(),
+            "window area": self.window_area(),
             "window-to-wall ratio": self.window_to_wall_ratio,
             "window fraction": self.window_fraction(),
             "glass fraction": self.glass_fraction(),
