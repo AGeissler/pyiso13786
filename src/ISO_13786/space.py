@@ -3,8 +3,9 @@
     Width x height is the (internal) area of the (single) external wall
     which includes a window. The window area is calculated as
 
-         window_area = width x height x window_to_wall_ratio.
+         window_area = facade_area x window_to_wall_ratio.
 
+    where 'facade_area' refers to the facade area viewed from outside.
     """
 
 import sys
@@ -17,15 +18,15 @@ from .construction import Construction
 class Space:
     """ Calculate heat capacity of box-like space. The basic assumption
     (for now) is that width x height is the (internal) area of the
-    external wall which includes the window with a given window-to-wall
-    ratio.
+    external wall which includes the window with a given (external)
+    window-to-wall ratio.
 
     The seven construction types are given as a list of tuples, the first
     element is a descriptive string for which surface the construction
     is applied to. The strings are defined counterclockwise from the
     external wall (assuming a south facing external wall) followed by
-    the window in the external wall.
-    ext, win, east, north, west, floor, ceiling
+    the window in the external wall:
+      ext, win, east, north, west, floor, ceiling
     """
     name: str
     width: float
@@ -49,6 +50,16 @@ class Space:
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
         self.net_floor_area = self.width*self.depth
+
+        # Store external facade area based on mid-line dimensions used for
+        # internal walls, floor and ceiling prior to any later rotation.
+        # For brevity, it is assumed that internal walls and floor/ceiling
+        # have the same thickness.
+        self.facade_area = self.width*self.height  # ext including window
+        self.facade_area += self.height*self.construction_list[2][1].thickness_tot()
+        self.facade_area += self.width*self.construction_list[5][1].thickness_tot()
+        self.facade_area += self.construction_list[2][1].thickness_tot()*\
+                              self.construction_list[5][1].thickness_tot()
 
         # Set effective depth to be used, if less than actual depth,
         # ignore back wall entirely for subsequent calculations!
@@ -124,34 +135,40 @@ class Space:
 
         return area
 
-    def facade_area(self) -> float:
-        """ External facade area, based on mid-line dimensions used
-            for internal walls, floor and ceiling.
-        """
-        area = self.width*self.height  # ext including window
-        circumferencelist = [2, 4, 5, 6]
-
-        for i in circumferencelist:
-            area += self.construction_list[i][1].thickness_tot()/2
-
-        return area
-
     def window_area(self) -> float:
-        """ Window area calculated from internal view WWR.
+        """ Window area calculated from external view WWR_e.
         """
-        return self.width*self.height*self.window_to_wall_ratio
+        return self.facade_area*self.window_to_wall_ratio
 
     def window_fraction(self) -> float:
         """ Window fraction defined as window area per net floor area.
         """
         return self.window_area()/self.eff_net_floor_area
 
+    def glass_area(self) -> float:
+        """ Glass area in m2.
+        """
+        glazing_area = (1-self.window_frame_fraction)*self.window_area()
+
+        return glazing_area
+
+    def glass_to_wall_ratio(self) -> float:
+        """ Glass to wall ratio defined as glazing area per internal
+            wall area. This can be used as WWR for E+!
+        """
+        return self.glass_area()/(self.width*self.height)
+
     def glass_fraction(self) -> float:
         """ Glass fraction defined as glazing area per (external) facade
             area.
         """
-        glazing_area = (1-self.window_frame_fraction)*self.window_area()
-        return glazing_area/self.facade_area()
+        return self.glass_area()/self.facade_area
+
+    def glass_area_number(self) -> float:
+        """ Glass area number (Minergie) is defined as glazing area 
+            per net floor area.
+        """
+        return self.glass_area()/self.eff_net_floor_area
 
     def opening_dimensions(self, high=False):
         """ Opening dimensions of a ventilation window based on the
@@ -225,17 +242,24 @@ class Space:
         res += "energy reference area = "\
                + str("%.3f" % round(self.energy_reference_area(), 3)) + ", m2\n"
         res += "surface areas = " + str(self.surface_areas()) + ", m2\n"
-        res += "effective net floor area = "\
+        res += "effective net floor area NGF = "\
                + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
-        res += "facade area = " + str("%.3f" % round(self.facade_area(), 3)) + ", m2\n"
-        res += "window area = "\
-               + str("%.3f" % round(self.window_area(), 3)) + ", %\n"
-        res += "window-to-wall ratio = " + str(self.window_to_wall_ratio) + "\n"
-        res += "window fraction = "\
-               + str("%.3f" % round(self.window_fraction(), 3)) + ", %\n"
-        res += "glass fraction = "\
+        res += "facade area A_W = " + str("%.3f" % round(self.facade_area, 3)) + ", m2\n"
+        res += "window-to-wall ratio WWR_e = "\
+                + str("%.3f" % round(self.window_to_wall_ratio, 3)) + "\n"
+        res += "window area A_w = "\
+               + str("%.3f" % round(self.window_area(), 3)) + ", m2\n"
+        res += "glass area A_g = "\
+               + str("%.3f" % round(self.glass_area(), 3)) + ", m2\n"
+        res += "glass fraction A_g/A_W = "\
                + str("%.3f" % round(self.glass_fraction(), 3)) + ", %\n"
+        res += "window fraction A_w/NGF = "\
+               + str("%.3f" % round(self.window_fraction(), 3)) + ", %\n"
+        res += "glass area number A_g/NGF = "\
+               + str("%.3f" % round(self.glass_area_number(), 3)) + "\n"
+        res += "glass-to-wall ratio GWR_i = "\
+               + str("%.3f" % round(self.glass_to_wall_ratio(), 3)) + "\n"
         res += "opening dimensions (clear opening area = "\
                + str("%.3f" % round(self.opening_dimensions()[2], 3)) + ", m2):\n"
         res += "  high=False: w = "\
@@ -257,14 +281,17 @@ class Space:
             "net floor area": self.net_floor_area,
             "energy reference area": self.eff_energy_reference_area(),
             "surface areas": self.surface_areas(),
-            "effective net floor area": self.eff_net_floor_area,
+            "NGF": self.eff_net_floor_area,
             "deeper than": self.deeper_than,
             "net deep area": self.net_deep_area(),
-            "facade area": self.facade_area(),
-            "window area": self.window_area(),
-            "window-to-wall ratio": self.window_to_wall_ratio,
-            "window fraction": self.window_fraction(),
-            "glass fraction": self.glass_fraction(),
+            "A_W": self.facade_area,
+            "WWR_e": self.window_to_wall_ratio,
+            "A_w": self.window_area(),
+            "A_g": self.glass_area(),
+            "A_g/A_W": self.glass_fraction(),
+            "A_w/NGF": self.window_fraction(),
+            "A_g/NGF": self.glass_area_number(),
+            "GWR_i": self.glass_to_wall_ratio(),
             "opening dimensions": self.opening_dimensions(),
             "opening dimensions high": self.opening_dimensions(high=True),
             "thermal capacity": self.thermal_capacity(),
