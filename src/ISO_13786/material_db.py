@@ -127,3 +127,17 @@ porenbeton = Material(
     specific_heat=1000,
     vapor_permeability=20.0,
 )
+decke_typ_a_me = Material(
+    name="Decke Typ a ME",
+    density=2363,
+    thermal_conductivity=2.02,
+    specific_heat=1003,
+    vapor_permeability=120.0,
+)
+decke_typ_b_me = Material(
+    name="Decke Typ b ME",
+    density=2123,
+    thermal_conductivity=0.196,
+    specific_heat=1025,
+    vapor_permeability=100.0,
+)
