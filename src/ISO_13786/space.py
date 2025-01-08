@@ -222,7 +222,7 @@ class Space:
         """
         cr = 0
         area = self.surface_areas()
-        for i in range(6):
+        for i in range(len(self.surface_areas())):
             cr += area[i]\
                   *self.construction_list[i][1].internal_area_heat_capacity()
         return cr/self.eff_net_floor_area
@@ -279,6 +279,7 @@ class Space:
         return {
             "name": self.name,
             "net floor area": self.net_floor_area,
+            "effective net floor area": self.eff_net_floor_area,
             "energy reference area": self.eff_energy_reference_area(),
             "surface areas": self.surface_areas(),
             "NGF": self.eff_net_floor_area,
