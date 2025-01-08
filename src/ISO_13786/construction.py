@@ -460,33 +460,37 @@ class Construction:
 
     # ======== PRINTING RESULTS ========
 
-    def run_analysis(self) -> str:
-        "Return all results as a string"
+    def run_analysis(self, rh=False, detailed=False) -> str:
+        "Return (all) results as a string"
         # TODO: Add formatting, parameter names and units for nicer output
-        res = ""
-        res += '\nd_tot ' + str(self.thickness_cumsum())
-        res += '\nsd_i ' + str(self.equivalent_thicknesses())
-        res += '\nsd_tot ' + str(self.equivalent_thickness_tot())
-        res += '\nsd_x ' + str(self.equivalent_thickness_cumsum())
-        res += '\nR_i ' + str(self.thermal_resistances())
-        res += '\nR_ges ' + str(self.thermal_resistance_tot())
-        res += '\nR_x ' + str(self.thermal_resistance_cumsum())
-        res += '\nU ' + str(self.thermal_transmittance())
-        res += '\ntheta_s(i,e) ' + str(self.surface_temperatures())
-        res += '\np_sat_i ' + str(self.saturation_pressures())
-        res += '\np_D_i ' + str(self.internal_pressures())
-        res += '\ndelta ' + str(self.delta())
-        res += '\nxi ' + str(self.xi())
-        res += '\nW_i ' + str(self.layer_transfer_matrix())
-        res += '\n ' + str(self.construction_transfer_matrix(Rs=False))
-        res += '\n ' + str(self.construction_transfer_matrix())
-        res += '\n|Y12| ' + str(self.periodic_thermal_transmittance())
-        res += '\nc ' + str(self.internal_area_heat_capacity())
-        res += '\nf ' + str(self.decrement_factor())
-        res += '\ndt ' + str(self.time_shift())
-        res += '\nphi ' + str(self.phase_shift())
-        res += '\nk1 ' + str(self.internal_thermal_admittance())
-        res += '\nk2 ' + str(self.external_thermal_admittance())
+        res = "\nConstruction '" + self.name + "':"
+        res += '\nd_i          ' + str(self.thicknesses())
+        res += '\nd_tot        ' + str(self.thickness_cumsum())
+        if rh:
+            res += '\nsd_i         ' + str(self.equivalent_thicknesses())
+            res += '\nsd_tot       ' + str(self.equivalent_thickness_tot())
+            res += '\nsd_x         ' + str(self.equivalent_thickness_cumsum())
+            res += '\np_sat_i      ' + str(self.saturation_pressures())
+            res += '\np_D_i        ' + str(self.internal_pressures())
+            res += '\ntheta_s(i,e) ' + str(self.surface_temperatures())
+        res += '\nR_i          ' + str(np.round(self.thermal_resistances(), decimals=3))
+        if detailed:
+            res += '\nR_ges        ' + str(self.thermal_resistance_tot())
+            res += '\nR_x          ' + str(self.thermal_resistance_cumsum())
+        res += '\nU            ' + str(np.round(self.thermal_transmittance(), decimals=2))
+        res += '\ndelta        ' + str(np.round(self.delta(), decimals=3))
+        if detailed:
+            res += '\nxi           ' + str(self.xi())
+            res += '\nW_i          ' + str(self.layer_transfer_matrix())
+            res += '\n             ' + str(self.construction_transfer_matrix(Rs=False))
+            res += '\n             ' + str(self.construction_transfer_matrix())
+            res += '\n|Y12|        ' + str(self.periodic_thermal_transmittance())
+            res += '\nf            ' + str(self.decrement_factor())
+            res += '\ndt           ' + str(self.time_shift())
+            res += '\nphi          ' + str(self.phase_shift())
+            res += '\nk1           ' + str(self.internal_thermal_admittance())
+            res += '\nk2           ' + str(self.external_thermal_admittance())
+        res += '\nc_int        ' + str(np.round(self.internal_area_heat_capacity(), decimals=3))
         return res
 
     def create_dict_valuable_properties(self) -> dict:

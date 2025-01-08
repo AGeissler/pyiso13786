@@ -21,12 +21,15 @@ class Space:
     external wall which includes the window with a given (external)
     window-to-wall ratio.
 
-    The seven construction types are given as a list of tuples, the first
-    element is a descriptive string for which surface the construction
-    is applied to. The strings are defined counterclockwise from the
-    external wall (assuming a south facing external wall) followed by
-    the window in the external wall:
-      ext, win, east, north, west, floor, ceiling
+    Construction types for space surfaces are given as a list of tuples, 
+    the first element is a descriptive string for which surface the 
+    construction is applied to. The strings are defined counterclockwise 
+    from the external wall (assuming a south facing external wall) followed 
+    by the window in the external wall:
+      ext, win, east, north, west, floor, ceiling [, ceiling2]
+    
+    The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
+    of the total ceiling area.
     """
     name: str
     width: float
@@ -38,14 +41,21 @@ class Space:
     deeper_than: float = 4.0  # m
     window_to_wall_ratio: float = 0.6
     window_frame_fraction: float = 0.15
+    ceiling_split_fraction: float = 1.0
 
     def __post_init__(self):
         """ Do some checks and initialisations.
         """
-        if len(self.construction_list) != 7:
+        if len(self.construction_list) < 7:
             print(f"{len(self.construction_list)} construction types found."\
-                    " Must be 7!")
+                   " Must be at least 7!")
             sys.exit(9)
+        if len(self.construction_list) > 8:
+            print(f"{len(self.construction_list)} construction types found."\
+                   " Cannot be more than 8!")
+            sys.exit(9)
+        if self.ceiling_split_fraction >= 0.98:
+            self.construction_list = self.construction_list[:7]
 
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
@@ -101,10 +111,28 @@ class Space:
                        self.depth*self.height,  # side wall
                        back_wall_area,
                        self.depth*self.height,  # side wall
-                       self.eff_net_floor_area,  # floor
-                       self.depth*self.width  # ceiling
+                       self.eff_net_floor_area  # floor
                        ])
+        if len(self.construction_list) > 7:
+            # Add two surface values for ceiling
+            surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
+            surface_light = self.depth*self.width - surface_heavy
+            s = np.append(s, (surface_heavy, surface_light))
+        else:
+            s = np.append(s, self.depth*self.width)  # ceiling
+
         return s
+
+    def surface_internal_area_heat_capacities(self) -> np.ndarray:
+        "Internal heat capacities for construction surfaces"
+
+        c = []
+        for con in self.construction_list:
+            c.append(con[1].internal_area_heat_capacity())
+
+        c = np.array(c)
+
+        return c
 
     def energy_reference_area(self) -> float:
         """ SIA energy reference area of space defined when calling
@@ -241,7 +269,9 @@ class Space:
         res += "net floor area = " + str(self.net_floor_area) + ", m2\n"
         res += "energy reference area = "\
                + str("%.3f" % round(self.energy_reference_area(), 3)) + ", m2\n"
-        res += "surface areas = " + str(self.surface_areas()) + ", m2\n"
+        res += "surface areas = " + str(np.round(self.surface_areas(), decimals=3)) + ", m2\n"
+        res += "surface heat cap = "\
+               + str(np.round(self.surface_internal_area_heat_capacities(), decimals=3)) + ", Wh/(m2 K)\n"
         res += "effective net floor area NGF = "\
                + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
