@@ -27,7 +27,7 @@ class Space:
     from the external wall (assuming a south facing external wall) followed 
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
-    
+
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
     of the total ceiling area.
     """
@@ -80,22 +80,6 @@ class Space:
 
         # Set effective net floor area using effective depth.
         self.eff_net_floor_area = self.width*self.depth
-
-        azimuth = ['S', 'SE', 'E', 'NE', 'N', 'NW', 'W', 'SW']
-
-        # Get index of actual orientation as given in constructor.
-        idx = next(i for i, v in enumerate(azimuth) if v == self.orientation)
-
-        # Rotate azimuth list by idx.
-        azimuth = azimuth[idx:] + azimuth[:idx]
-
-        # Set azimuth for walls based on actual orientation, [S, E, N, W],
-        # note that the facade has two construction systems.
-        actual_azim = self.construction_list[1:5]
-        actual_azim = [(azimuth[i*2], y) for i, (x, y) in enumerate(actual_azim)]
-        # Duplicate actual_azim[0]
-        actual_azim = [actual_azim[0]] + actual_azim
-        self.construction_list = actual_azim[:5] + self.construction_list[5:]
 
     def surface_areas(self) -> np.ndarray:
         "Applicable surface area for each construction."

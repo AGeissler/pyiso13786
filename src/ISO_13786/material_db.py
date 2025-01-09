@@ -30,14 +30,14 @@ leichtbauplatte_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Aussenwan
     vapor_permeability=30.0,
 )
 daemmung_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Aussenwand, Decke 2
-    name="Daemmung ME",
+    name="Daemmung_ME",
     density=30.0,
     thermal_conductivity=0.041,
     specific_heat=1030,
     vapor_permeability=25.0,
 )
 trittschalldaemmung_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Boden
-    name="Trittschalldaemmung ME",
+    name="Trittschalldaemmung_ME",
     density=48.0,
     thermal_conductivity=0.034,
     specific_heat=1030,
@@ -126,18 +126,4 @@ porenbeton = Material(
     thermal_conductivity=0.3,
     specific_heat=1000,
     vapor_permeability=20.0,
-)
-decke_typ_a_me = Material(
-    name="Decke Typ a ME",
-    density=2363,
-    thermal_conductivity=2.02,
-    specific_heat=1003,
-    vapor_permeability=120.0,
-)
-decke_typ_b_me = Material(
-    name="Decke Typ b ME",
-    density=2123,
-    thermal_conductivity=0.196,
-    specific_heat=1025,
-    vapor_permeability=100.0,
 )
