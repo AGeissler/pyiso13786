@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from typing import Optional
 
@@ -9,6 +10,32 @@ class Material:
     vapor_permeability: float  # mu
     density: float
     specific_heat: float
+
+    def __hash__(self):
+        return hash((self.name,
+                     self.thermal_conductivity,
+                     self.vapor_permeability,
+                     self.density,
+                     self.specific_heat))
+
+    def __eq__(self, other):
+        if not isinstance(other, Material):
+            return NotImplemented
+        return (
+            self.name == other.name and
+            self._float_eq(self.thermal_conductivity, other.thermal_conductivity) and
+            self._float_eq(self.vapor_permeability, other.vapor_permeability) and
+            self._float_eq(self.density, other.density) and
+            self._float_eq(self.specific_heat, other.specific_heat)
+        )
+
+    @staticmethod
+    def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        # Handle cases where either or both are None
+        if a is None or b is None:
+            return a == b
+        # Use math.isclose for floating-point comparison
+        return math.isclose(a, b, abs_tol=tol)
 
 
 @dataclass
@@ -23,6 +50,30 @@ class Layer:
         self.vapor_permeability=self.material.vapor_permeability
         self.density=self.material.density
         self.specific_heat=self.material.specific_heat
+
+    def __hash__(self):
+        return hash((self.name,
+                     self.thickness,
+                     self.material,
+                     self.color))
+
+    def __eq__(self, other):
+        if not isinstance(other, Layer):
+            return NotImplemented
+        return (
+            self.name == other.name and
+            self._float_eq(self.thickness, other.thickness) and
+            self.material == other.material and
+            self._float_eq(self.color, other.color)
+        )
+
+    @staticmethod
+    def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        # Handle cases where either or both are None
+        if a is None or b is None:
+            return a == b
+        # Use math.isclose for floating-point comparison
+        return math.isclose(a, b, abs_tol=tol)
 
     # TODO add is_air
 

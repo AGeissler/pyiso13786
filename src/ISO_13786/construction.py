@@ -1,9 +1,11 @@
+import math
 from dataclasses import dataclass
 import numpy as np
 from numpy.testing import assert_almost_equal
 from .layer import Layer
 import matplotlib.pyplot as plt
 import pandas as pd
+from typing import Optional
 
 
 @dataclass
@@ -18,6 +20,41 @@ class Construction:
     Rsi: float = 0.130  # Rsi
     Rse: float = 0.040  # Rse
     time: float = 24  # time of the analysis in hour
+
+    def __hash__(self):
+        return hash((self.name,
+                     tuple(self.layers),
+                     self.temp_int,
+                     self.temp_ext,
+                     self.rel_hum_i,
+                     self.rel_hum_e,
+                     self.Rsi,
+                     self.Rse,
+                     self.time))
+
+    def __eq__(self, other):
+        if not isinstance(other, Material):
+            return NotImplemented
+        return (
+            self.name == other.name and
+            self.layers == other.layers and
+            self._float_eq(self.temp_int, other.temp_int) and
+            self._float_eq(self.temp_ext, other.temp_ext) and
+            self._float_eq(self.rel_hum_i, other.rel_hum_i) and
+            self._float_eq(self.rel_hum_e, other.rel_hum_e) and
+            self._float_eq(self.Rsi, other.Rsi) and
+            self._float_eq(self.Rse, other.Rse) and
+            self._float_eq(self.time, other.time)
+        )
+
+    @staticmethod
+    def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        # Handle cases where either or both are None
+        if a is None or b is None:
+            return a == b
+        # Use math.isclose for floating-point comparison
+        return math.isclose(a, b, abs_tol=tol)
+
 
     def thicknesses(self) -> np.ndarray:
         "np.array with thickness of each Layer"
