@@ -36,7 +36,6 @@ class Space:
     height: float
     depth: float
     construction_list: list[(str, Construction)]
-    orientation: str # S, SE, E, SW, W, NE, N, NW
     depth_factor: float = 2.5
     deeper_than: float = 4.0  # m
     window_to_wall_ratio: float = 0.6
