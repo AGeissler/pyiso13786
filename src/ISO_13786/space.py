@@ -11,6 +11,9 @@
 import sys
 from dataclasses import dataclass
 import numpy as np
+from typing import Optional
+
+# Local imports
 from .construction import Construction
 
 
@@ -41,6 +44,7 @@ class Space:
     window_to_wall_ratio: float = 0.6
     window_frame_fraction: float = 0.15
     ceiling_split_fraction: float = 1.0
+    window_in_two_facades: bool = False
 
     def __post_init__(self):
         """ Do some checks and initialisations.
