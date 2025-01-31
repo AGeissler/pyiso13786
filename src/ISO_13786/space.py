@@ -185,6 +185,17 @@ class Space:
         """
         return self.glass_area()/self.eff_net_floor_area
 
+    def set_wwr_from_gan(self, gan) -> float:
+        """ Glass area number (Minergie) is defined as glazing area 
+            per net floor area. Set window_to_wall_ratio such that
+            desired 'gan' is achieved.
+        """
+        glass_area_from_gan = self.width*self.depth*gan
+        wwr_new = glass_area_from_gan
+        wwr_new /= (1-self.window_frame_fraction)*self.facade_area
+
+        self.window_to_wall_ratio = wwr_new
+
     def opening_dimensions(self, high=False):
         """ Opening dimensions of a ventilation window based on the
             window fraction. It is assumed that 30 % of the frame area
