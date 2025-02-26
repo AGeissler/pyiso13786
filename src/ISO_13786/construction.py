@@ -20,6 +20,7 @@ class Construction:
     Rsi: float = 0.130  # Rsi
     Rse: float = 0.040  # Rse
     time: float = 24  # time of the analysis in hour
+    partition: bool = True
 
     def __hash__(self):
         return hash((self.name,
@@ -385,6 +386,10 @@ class Construction:
             Z = Z.dot(zz[-1 - i])  # scalar product
 
         if Rs:
+            if self.partition:
+                rse = self.Rsi
+            else:
+                rse = self.Rse
             # Internal heat transfer coefficient.
             Zsi = np.array(
                 [
@@ -397,7 +402,7 @@ class Construction:
             # External heat transfer coefficient.
             Zse = np.array(
                 [
-                    [complex(1, 0), complex(-self.Rse)],
+                    [complex(1, 0), complex(-rse)],
                     [complex(0, 0), complex(1, 0)],
                 ],
                 dtype=np.complex128,
