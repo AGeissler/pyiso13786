@@ -148,6 +148,9 @@ class Construction:
         )
 
     def internal_pressures(self) -> np.ndarray:
+        """Calculate partial vapor pressure at each layer boundary assuming
+           a constant value for air vapor conductivity ('Dampfleitfaehigkeit')
+        """
         p_int = self.rel_hum_i * self.saturation_pressures()[0]
         p_ext = self.rel_hum_e * self.saturation_pressures()[-1]
         delta_p = p_int - p_ext
@@ -194,12 +197,12 @@ class Construction:
         ax1.plot(
             self.thickness_cumsum(),
             self.surface_temperatures()[1:-1],
-            label="Temperatura",
+            label="Temperature",
             color=COLORS[0],
             linewidth=LINEWIDTH,
         )
-        ax1.set_xlabel("Spessore della parete (m)", fontsize=14)
-        ax1.set_ylabel("Temperatura (°C)", fontsize=14)
+        ax1.set_xlabel("Wall thickness (m)", fontsize=14)
+        ax1.set_ylabel("Temperature (°C)", fontsize=14)
         ax1.grid(axis="both")
         ax1.set_xticks(self.thickness_cumsum())
         ax1.tick_params(axis="x", rotation=90)
@@ -209,18 +212,18 @@ class Construction:
         ax11.plot(
             self.thickness_cumsum(),  # TODO graph with normal thickness
             self.internal_pressures(),
-            label="Pressione",
+            label="Druck",
             color=COLORS[1],
             linewidth=LINEWIDTH,
         )
         ax11.plot(
             self.thickness_cumsum(),
             self.saturation_pressures()[1:-1],
-            label="Pressione Saturazione",
+            label="Saturation pressure",
             color=COLORS[4],
             linewidth=LINEWIDTH,
         )
-        ax11.set_ylabel("Pressione (Pa)", fontsize=14)
+        ax11.set_ylabel("Pressure (Pa)", fontsize=14)
         ax11.grid(axis="both")
 
         fig.legend(loc="upper center", fontsize=12, frameon=True)
@@ -228,7 +231,7 @@ class Construction:
         ax1.text(
             0.005,
             self.temp_ext,
-            "Interno",
+            "Internal",
             rotation=90,
             horizontalalignment="center",
             verticalalignment="bottom",
@@ -240,7 +243,7 @@ class Construction:
         ax1.text(
             self.thickness_cumsum()[-1] - 0.005,
             self.temp_int,
-            "Esterno",
+            "External",
             rotation=90,
             horizontalalignment="center",
             verticalalignment="top",
@@ -280,7 +283,7 @@ class Construction:
         ax2.plot(
             self.equivalent_thickness_cumsum(),
             self.surface_temperatures()[1:-1],
-            label="Temperatura",
+            label="Temperature",
             color=COLORS[0],
             linewidth=LINEWIDTH,
         )
@@ -296,18 +299,18 @@ class Construction:
         ax22.plot(
             self.equivalent_thickness_cumsum(),
             self.internal_pressures(),
-            label="Pressione",
+            label="Pressure",
             color=COLORS[1],
             linewidth=LINEWIDTH,
         )
         ax22.plot(
             self.equivalent_thickness_cumsum(),
             self.saturation_pressures()[1:-1],
-            label="Pressione Saturazione",
+            label="Saturation Pressure",
             color=COLORS[4],
             linewidth=LINEWIDTH,
         )
-        ax22.set_ylabel("Pressione (Pa)", fontsize=14)
+        ax22.set_ylabel("Pressure (Pa)", fontsize=14)
         ax22.grid(axis="both")
 
         # ax2.legend(loc="best", fontsize=12, frameon=True)
