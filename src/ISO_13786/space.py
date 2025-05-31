@@ -9,8 +9,10 @@
     """
 
 import sys
+import math
 from dataclasses import dataclass
 import numpy as np
+from numpy.testing import assert_almost_equal
 from typing import Optional
 
 # Local imports
@@ -45,6 +47,47 @@ class Space:
     window_frame_fraction: float = 0.15
     ceiling_split_fraction: float = 1.0
     window_in_two_facades: bool = False
+
+    def __hash__(self):
+        return hash((self.name,
+                     self.width,
+                     self.height,
+                     self.depth,
+                     tuple(self.construction_list),
+                     self.depth_factor,
+                     self.deeper_than,
+                     self.window_to_wall_ratio,
+                     self.window_frame_fraction,
+                     self.ceiling_split_fraction,
+                     self.window_in_two_facades))
+
+    def __eq__(self, other):
+        if not isinstance(other, Space):
+            return NotImplemented
+        return (
+            self.name == other.name and
+            self._float_eq(self.width, other.width) and
+            self._float_eq(self.height, other.height) and
+            self._float_eq(self.depth, other.depth) and
+            self.construction_list == other.construction_list and
+            self._float_eq(self.depth_factor, other.depth_factor) and
+            self._float_eq(self.deeper_than, other.deeper_than) and
+            self._float_eq(self.window_to_wall_ratio,
+                           other.window_to_wall_ratio) and
+            self._float_eq(self.window_frame_fraction,
+                           other.window_frame_fraction) and
+            self._float_eq(self.ceiling_split_fraction,
+                           other.ceiling_split_fraction) and
+            self.window_in_two_facades == other.window_in_two_facades
+        )
+
+    @staticmethod
+    def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        # Handle cases where either or both are None
+        if a is None or b is None:
+            return a == b
+        # Use math.isclose for floating-point comparison
+        return math.isclose(a, b, abs_tol=tol)
 
     def __post_init__(self):
         """ Do some checks and initialisations.

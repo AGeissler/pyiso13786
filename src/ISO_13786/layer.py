@@ -64,7 +64,7 @@ class Layer:
             self.name == other.name and
             self._float_eq(self.thickness, other.thickness) and
             self.material == other.material and
-            self._float_eq(self.color, other.color)
+            self.color == other.color
         )
 
     @staticmethod

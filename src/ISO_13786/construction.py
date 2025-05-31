@@ -31,10 +31,11 @@ class Construction:
                      self.rel_hum_e,
                      self.Rsi,
                      self.Rse,
-                     self.time))
+                     self.time,
+                     self.partition))
 
     def __eq__(self, other):
-        if not isinstance(other, Material):
+        if not isinstance(other, Construction):
             return NotImplemented
         return (
             self.name == other.name and
@@ -45,7 +46,8 @@ class Construction:
             self._float_eq(self.rel_hum_e, other.rel_hum_e) and
             self._float_eq(self.Rsi, other.Rsi) and
             self._float_eq(self.Rse, other.Rse) and
-            self._float_eq(self.time, other.time)
+            self._float_eq(self.time, other.time) and
+            self.partition == other.partition
         )
 
     @staticmethod
