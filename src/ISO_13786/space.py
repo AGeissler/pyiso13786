@@ -153,12 +153,12 @@ class Space:
 
         return s
 
-    def surface_internal_area_heat_capacities(self) -> np.ndarray:
+    def surface_internal_area_heat_capacities(self, Rs=True) -> np.ndarray:
         "Internal heat capacities for construction surfaces"
 
         c = []
         for con in self.construction_list:
-            c.append(con[1].internal_area_heat_capacity())
+            c.append(con[1].internal_area_heat_capacity(Rs=Rs))
 
         c = np.array(c)
 
@@ -285,7 +285,7 @@ class Space:
 
         return deep_area
 
-    def thermal_capacity(self) -> float:
+    def thermal_capacity(self, Rs=True) -> float:
         """ Space internal heat capacity per net floor area
             in Wh/(m2 K).
         """
@@ -293,7 +293,7 @@ class Space:
         area = self.surface_areas()
         for i in range(len(self.surface_areas())):
             cr += area[i]\
-                  *self.construction_list[i][1].internal_area_heat_capacity()
+                  *self.construction_list[i][1].internal_area_heat_capacity(Rs=Rs)
         return cr/self.eff_net_floor_area
 
     def air_volume(self) -> float:
@@ -312,7 +312,8 @@ class Space:
                + str("%.3f" % round(self.energy_reference_area(), 3)) + ", m2\n"
         res += "surface areas = " + str(np.round(self.surface_areas(), decimals=3)) + ", m2\n"
         res += "surface heat cap = "\
-               + str(np.round(self.surface_internal_area_heat_capacities(), decimals=3)) + ", Wh/(m2 K)\n"
+               + str(np.round(self.surface_internal_area_heat_capacities(Rs=True),
+                              decimals=3)) + ", Wh/(m2 K)\n"
         res += "effective net floor area NGF = "\
                + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
@@ -339,8 +340,10 @@ class Space:
         res += "  high=True: w = "\
                + str("%.3f" % round(self.opening_dimensions(high=True)[0], 3)) + " m, h = "\
                + str("%.3f" % round(self.opening_dimensions(high=True)[1], 3)) + " m\n"
-        res += "thermal capacity = "\
+        res += "thermal capacity w/ Rsi/e = "\
                + str("%.3f" % round(self.thermal_capacity(), 3)) + ", Wh/(m2 K)\n"
+        res += "thermal capacity w/o Rsi/e = "\
+               + str("%.3f" % round(self.thermal_capacity(Rs=False), 3)) + ", Wh/(m2 K)\n"
         res += "air volume = " + str("%.3f" % round(self.air_volume(), 3)) + ", m3\n"
         return res
 

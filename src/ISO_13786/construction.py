@@ -455,18 +455,18 @@ class Construction:
 
         return Y11
 
-    def external_thermal_admittance(self) -> float:
+    def external_thermal_admittance(self, Rs=True) -> float:
         "Y22 = -Z22/Z12"
-        Zee = self.construction_transfer_matrix()
+        Zee = self.construction_transfer_matrix(Rs=Rs)
 
         Y22 = -Zee[1][1] / Zee[0][1]
         Y22 = np.sqrt((Y22.real) ** 2 + (Y22.imag) ** 2)  # the module
 
         return Y22
 
-    def internal_area_heat_capacity(self) -> float:
+    def internal_area_heat_capacity(self, Rs=True) -> float:
         "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K)"
-        Zee = self.construction_transfer_matrix()
+        Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
                   * np.sqrt(
@@ -476,9 +476,9 @@ class Construction:
 
         return kappa/3600 # Wh/(m2 K)
 
-    def external_area_heat_capacity(self) -> float:
+    def external_area_heat_capacity(self, Rs=True) -> float:
         "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K)"
-        Zee = self.construction_transfer_matrix()
+        Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
                   * np.sqrt(
@@ -529,8 +529,8 @@ class Construction:
         if detailed:
             res += '\nxi           ' + str(self.xi())
             res += '\nW_i          ' + str(self.layer_transfer_matrix())
-            res += '\n             ' + str(self.construction_transfer_matrix(Rs=False))
-            res += '\n             ' + str(self.construction_transfer_matrix())
+            res += '\nZ w/o Rsi/e  ' + str(self.construction_transfer_matrix(Rs=False))
+            res += '\nZ w/ Rsi/e   ' + str(self.construction_transfer_matrix())
             res += '\n|Y12|        ' + str(self.periodic_thermal_transmittance())
             res += '\nf            ' + str(self.decrement_factor())
             res += '\ndt           ' + str(self.time_shift())
