@@ -505,6 +505,25 @@ class Construction:
             self.thermal_conductivities() * self.densities() * self.specific_heats()
         )
 
+    def properties(self):
+        """Dict of construction properties for tabular output"""
+        # Set up a list of generic layer names.
+        laynam = []
+        if len(self.layers) == 1:
+            laynam.append('layer')
+        else:
+            laynam.append('inside')
+            for i in range(len(self.layers[1:-1])):
+                laynam.append('layer ' + str(i + 1))
+            laynam.append('outside')
+
+        return {
+            'name': self.name,  # construction name
+            'layers': pd.DataFrame.from_dict({lay: self.layers[k].properties()
+                                              for k, lay in enumerate(laynam)},
+                                             orient='index')
+        }
+
     # ======== PRINTING RESULTS ========
 
     def run_analysis(self, rh=False, detailed=False) -> str:

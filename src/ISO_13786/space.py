@@ -301,6 +301,14 @@ class Space:
         """
         return self.width*self.height*self.depth
 
+    def properties(self):
+        """Dict of space properties for tabular output"""
+        return {
+            'name': self.name,  # space name
+            'constructions': {loc: con.properties()
+                              for loc, con in self.construction_list}
+        }
+
     # ======== PRINTING RESULTS ========
 
     def show_properties(self) -> str:

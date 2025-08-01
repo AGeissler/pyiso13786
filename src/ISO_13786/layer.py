@@ -6,10 +6,10 @@ from typing import Optional
 @dataclass
 class Material:
     name: str
-    thermal_conductivity: float  # lambda
+    thermal_conductivity: float  # lambda, W/(m K)
     vapor_permeability: float  # mu
-    density: float
-    specific_heat: float
+    density: float  # kg/m3
+    specific_heat: float  # J/(kg K)
 
     def __hash__(self):
         return hash((self.name,
@@ -86,3 +86,12 @@ class Layer:
     def thermal_resistance(self):
         "Thermal resistance R, m2 K/W"
         return self.thickness / self.thermal_conductivity
+
+    def properties(self):
+        """Dict of layer properties for tabular output"""
+        return {'name': self.name,  # layer name
+                's (m)': self.thickness,
+                'lambda (W/(m K))': self.thermal_conductivity,
+                'rho (kg/m3)': self.density,
+                'c (J/(kg K))': self.specific_heat
+                }
