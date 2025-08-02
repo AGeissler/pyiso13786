@@ -11,6 +11,7 @@
 import sys
 import math
 from dataclasses import dataclass
+import pandas as pd
 import numpy as np
 from numpy.testing import assert_almost_equal
 from typing import Optional
@@ -302,12 +303,65 @@ class Space:
         return self.width*self.height*self.depth
 
     def properties(self):
-        """Dict of space properties for tabular output"""
+        """Dict of space properties"""
         return {
             'name': self.name,  # space name
             'constructions': {loc: con.properties()
                               for loc, con in self.construction_list}
         }
+
+    def properties_markdown(self):
+        """Create DataFrame with multi-index for tabular markdown output"""
+        the_multi_index = ['location', 'construction', 'layers']
+        # Get all unique property names from all construction layers.
+        property_columns = set()
+        for construction in self.properties()['constructions'].values():
+            for layer_data in construction['layers'].values():
+                property_columns.update(layer_data.keys())
+        property_columns.discard('name')  # Remove 'name' as it's already in the index
+
+        # Extract data from the nested structure and store in bespoke list.
+        data = []
+        for location, construction in self.properties()['constructions'].items():
+            for layer, layer_data in construction['layers'].items():
+                # Create a row for each layer with all properties
+                row = {
+                    the_multi_index[0]: location,
+                    the_multi_index[1]: construction['name'],
+                    the_multi_index[2]: layer,
+                    'layer_name': layer_data['name']
+                }
+                # Add all other properties dynamically.
+                for prop in property_columns:
+                    row[prop] = layer_data.get(prop, None)
+                data.append(row)
+
+        # Create the DataFrame.
+        df = pd.DataFrame(data)
+
+        # Set the multi-index.
+        if not df.empty:
+            df = df.set_index(the_multi_index)
+            # Reorder columns to have 'name' first, then other properties.
+            #col_order = ['layer_name'] + sorted([col for col in df.columns
+            #                                         if col != 'layer_name'],
+            #                                    reverse=True)
+            sort_order = {'s': 0, 'l': 1, 'r': 2, 'c': 3}
+
+            # Sort columns based on their first letter and then alphabetically within each group
+            def get_sort_key(col):
+                first_char = col[0].lower()
+                return (sort_order.get(first_char, 99), col)  # Default to 99 for other letters
+
+            # Get all columns except 'layer_name'
+            other_columns = [col for col in df.columns if col != 'layer_name']
+
+            # Put 'layer_name' first, sort others according to custom order.
+            col_order = ['layer_name'] + sorted(other_columns, key=get_sort_key)
+
+            df = df[col_order]
+
+        return df
 
     # ======== PRINTING RESULTS ========
 

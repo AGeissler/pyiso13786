@@ -506,7 +506,7 @@ class Construction:
         )
 
     def properties(self):
-        """Dict of construction properties for tabular output"""
+        """Dict of construction properties"""
         # Set up a list of generic layer names.
         laynam = []
         if len(self.layers) == 1:
@@ -519,9 +519,8 @@ class Construction:
 
         return {
             'name': self.name,  # construction name
-            'layers': pd.DataFrame.from_dict({lay: self.layers[k].properties()
-                                              for k, lay in enumerate(laynam)},
-                                             orient='index')
+            'layers': {lay: self.layers[k].properties()
+                                             for k, lay in enumerate(laynam)}
         }
 
     # ======== PRINTING RESULTS ========

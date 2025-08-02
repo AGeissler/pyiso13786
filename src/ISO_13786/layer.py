@@ -91,7 +91,7 @@ class Layer:
         """Dict of layer properties for tabular output"""
         return {'name': self.name,  # layer name
                 's (m)': self.thickness,
-                'lambda (W/(m K))': self.thermal_conductivity,
+                'lam (W/(m K))': self.thermal_conductivity,
                 'rho (kg/m3)': self.density,
                 'c (J/(kg K))': self.specific_heat
                 }
