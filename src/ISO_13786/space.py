@@ -380,8 +380,11 @@ class Space:
                + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
         res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
         res += "facade area A_W = " + str("%.3f" % round(self.facade_area, 3)) + ", m2\n"
+        res += "ceiling split fraction = "\
+                + str("%.3f" % self.ceiling_split_fraction) + ",\n"
+        res += "windows in two facades is " + str(self.window_in_two_facades) + ",\n",
         res += "window-to-wall ratio WWR_e = "\
-                + str("%.3f" % round(self.window_to_wall_ratio, 3)) + "\n"
+                + str("%.3f" % round(self.window_to_wall_ratio, 3)) + ",\n"
         res += "window area A_w = "\
                + str("%.3f" % round(self.window_area(), 3)) + ", m2\n"
         res += "glass area A_g = "\
@@ -422,6 +425,8 @@ class Space:
             "deeper than": self.deeper_than,
             "net deep area": self.net_deep_area(),
             "A_W": self.facade_area,
+            "ceiling split fraction": self.ceiling_split_fraction,
+            "windows in two facades": str(self.window_in_two_facades),
             "WWR_e": self.window_to_wall_ratio,
             "A_w": self.window_area(),
             "A_g": self.glass_area(),
