@@ -34,6 +34,9 @@ class Space:
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
 
+    If two windows are present (window_in_two_facades == True), the
+    construction system for 'east' is set to 'ext'.
+
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
     of the total ceiling area.
     """
@@ -108,25 +111,53 @@ class Space:
         self.total_depth = self.depth
         self.net_floor_area = self.width*self.depth
 
-        # Store external facade area based on mid-line dimensions used for
-        # internal walls, floor and ceiling prior to any later rotation.
-        # For brevity, it is assumed that internal walls and floor/ceiling
-        # have the same thickness.
-        self.facade_area = self.width*self.height  # ext including window
-        self.facade_area += self.height*self.construction_list[2][1].thickness_tot()
-        self.facade_area += self.width*self.construction_list[5][1].thickness_tot()
-        self.facade_area += self.construction_list[2][1].thickness_tot()*\
-                              self.construction_list[5][1].thickness_tot()
-
-        # Set effective depth to be used, if less than actual depth,
-        # ignore back wall entirely for subsequent calculations!
         self.ignore_north = False
-        if self.depth > self.depth_factor*self.height:
-            self.depth = self.depth_factor*self.height
-            self.ignore_north = True
+        if self.window_in_two_facades:
+            # With two windows present, full room *must* be considered. Also,
+            # the construction for 'east' must be modified to 'ext'.
+            self.construction_list[2] = self.construction_list[0]
+        else:
+            # Set effective depth to be used, if less than actual depth,
+            # ignore back wall entirely for subsequent calculations!
+            if self.depth > self.depth_factor*self.height:
+                self.depth = self.depth_factor*self.height
+                self.ignore_north = True
 
         # Set effective net floor area using effective depth.
         self.eff_net_floor_area = self.width*self.depth
+
+        # Calculate external facade area based on mid-line dimensions used for
+        # internal walls, floor and ceiling.
+        if self.window_in_two_facades:
+            # tbd
+            self.facade_area = self.height*(self.width+self.depth) # ext incl. windows
+            # Add external wall corner.
+            self.facade_area += 2*self.height*self.construction_list[0][1].thickness_tot()
+            # Add half of west and north walls each.
+            self.facade_area += 0.5*self.height*self.construction_list[3][1].thickness_tot()
+            self.facade_area += 0.5*self.height*self.construction_list[4][1].thickness_tot()
+            # Add half of floor/ceiling each.
+            self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
+            self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
+            # Add missing wall/ceiling corner areas.
+            self.facade_area += 0.5*(
+                self.width*self.construction_list[3][1].thickness_tot()*
+                self.width*self.construction_list[5][1].thickness_tot()+
+                self.width*self.construction_list[3][1].thickness_tot()*
+                self.width*self.construction_list[6][1].thickness_tot()+
+                self.width*self.construction_list[4][1].thickness_tot()*
+                self.width*self.construction_list[5][1].thickness_tot()+
+                self.width*self.construction_list[4][1].thickness_tot()*
+                self.width*self.construction_list[6][1].thickness_tot()
+                )
+        else:
+            # For brevity, it is assumed here that internal walls and floor/
+            # ceiling have the same thickness.
+            self.facade_area = self.width*self.height  # ext including window
+            self.facade_area += self.height*self.construction_list[2][1].thickness_tot()
+            self.facade_area += self.width*self.construction_list[5][1].thickness_tot()
+            self.facade_area += self.construction_list[2][1].thickness_tot()*\
+                                  self.construction_list[5][1].thickness_tot()
 
     def surface_areas(self) -> np.ndarray:
         "Applicable surface area for each construction."
