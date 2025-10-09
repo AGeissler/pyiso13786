@@ -11,10 +11,10 @@
 import sys
 import math
 from dataclasses import dataclass
+from typing import Optional
 import pandas as pd
 import numpy as np
 from numpy.testing import assert_almost_equal
-from typing import Optional
 
 # Local imports
 from .construction import Construction
@@ -325,7 +325,7 @@ class Space:
         """
         if self.window_in_two_facades is False:
             if self.total_depth > self.deeper_than:
-                return(self.width*(self.total_depth - self.deeper_than))
+                return self.width*(self.total_depth - self.deeper_than)
         return 0
 
     def thermal_capacity(self, Rs=True) -> float:
@@ -409,48 +409,38 @@ class Space:
     def show_properties(self) -> str:
         """Return space properties as single (multi-line) string
         """
-        res = "Space '" + self.name + "':\n"
-        res += "net floor area = " + str(self.net_floor_area) + ", m2\n"
-        res += "energy reference area = "\
-               + str("%.3f" % round(self.energy_reference_area(), 3)) + ", m2\n"
-        res += "surface areas = " + str(np.round(self.surface_areas(), decimals=3)) + ", m2\n"
-        res += "surface heat cap = "\
-               + str(np.round(self.surface_internal_area_heat_capacities(Rs=True),
-                              decimals=3)) + ", Wh/(m2 K)\n"
-        res += "effective net floor area NGF = "\
-               + str("%.3f" % round(self.eff_net_floor_area, 3)) + ", m2\n"
-        res += "net deep area = " + str("%.3f" % round(self.net_deep_area(), 3)) + ", m2\n"
-        res += "facade area A_W = " + str("%.3f" % round(self.facade_area, 3)) + ", m2\n"
-        res += "ceiling split fraction = "\
-                + str("%.3f" % self.ceiling_split_fraction) + ",\n"
-        res += "windows in two facades is " + str(self.window_in_two_facades) + ",\n"
-        res += "window-to-wall ratio WWR_e = "\
-                + str("%.3f" % round(self.window_to_wall_ratio, 3)) + ",\n"
-        res += "window area A_w = "\
-               + str("%.3f" % round(self.window_area(), 3)) + ", m2\n"
-        res += "glass area A_g = "\
-               + str("%.3f" % round(self.glass_area(), 3)) + ", m2\n"
-        res += "glass fraction A_g/A_W = "\
-               + str("%.3f" % round(self.glass_fraction(), 3)) + ", %\n"
-        res += "window fraction A_w/NGF = "\
-               + str("%.3f" % round(self.window_fraction(), 3)) + ", %\n"
-        res += "glass area number A_g/NGF = "\
-               + str("%.3f" % round(self.glass_area_number(), 3)) + "\n"
-        res += "glass-to-wall ratio GWR_i = "\
-               + str("%.3f" % round(self.glass_to_wall_ratio(), 3)) + "\n"
+        res = f"Space '{self.name}':\n"
+        res += f"net floor area = {self.net_floor_area} m2\n"
+        res += f"energy reference area = {round(self.energy_reference_area(), 3)} m2\n"
+        res += f"surface areas = {np.round(self.surface_areas(), decimals=3)} m2\n"
+        heatcap = np.round(
+            self.surface_internal_area_heat_capacities(Rs=True), decimals=3)
+        res += f"surface heat cap = {heatcap} Wh/(m2 K)\n"
+        res += f"effective net floor area NGF = {round(self.eff_net_floor_area, 3)} m2\n"
+        res += f"net deep area = {round(self.net_deep_area(), 3)} m2\n"
+        res += f"facade area A_W = {round(self.facade_area, 3)} m2\n"
+        res += f"ceiling split fraction = {self.ceiling_split_fraction}\n"
+        res += f"windows in two facades is {str(self.window_in_two_facades)}\n"
+        res += f"window-to-wall ratio WWR_e = {round(self.window_to_wall_ratio, 3)}\n"
+        res += f"window area A_w = {round(self.window_area(), 3)} m2\n"
+        res += f"glass area A_g = {round(self.glass_area(), 3)} m2\n"
+        res += f"glass fraction A_g/A_W = {round(self.glass_fraction(), 3)} %\n"
+        res += f"window fraction A_w/NGF = {round(self.window_fraction(), 3)} %\n"
+        res += f"glass area number A_g/NGF = {round(self.glass_area_number(), 3)}\n"
+        res += f"glass-to-wall ratio GWR_i = {round(self.glass_to_wall_ratio(), 3)}\n"
         res += "opening dimensions (clear opening area = "\
-               + str("%.3f" % round(self.opening_dimensions()[2], 3)) + ", m2):\n"
+               + f"{round(self.opening_dimensions()[2], 3)}, m2):\n"
         res += "  high=False: w = "\
-               + str("%.3f" % round(self.opening_dimensions()[0], 3)) + " m, h = "\
-               + str("%.3f" % round(self.opening_dimensions()[1], 3)) + " m\n"
+               + f"{round(self.opening_dimensions()[0], 3)} m, h = "\
+               + f"{round(self.opening_dimensions()[1], 3)} m\n"
         res += "  high=True: w = "\
-               + str("%.3f" % round(self.opening_dimensions(high=True)[0], 3)) + " m, h = "\
-               + str("%.3f" % round(self.opening_dimensions(high=True)[1], 3)) + " m\n"
+               + f"{round(self.opening_dimensions(high=True)[0], 3)} m, h = "\
+               + f"{round(self.opening_dimensions(high=True)[1], 3)} m\n"
         res += "thermal capacity w/ Rsi/e = "\
-               + str("%.3f" % round(self.thermal_capacity(), 3)) + ", Wh/(m2 K)\n"
+               + f"{round(self.thermal_capacity(), 3)} Wh/(m2 K)\n"
         res += "thermal capacity w/o Rsi/e = "\
-               + str("%.3f" % round(self.thermal_capacity(Rs=False), 3)) + ", Wh/(m2 K)\n"
-        res += "air volume = " + str("%.3f" % round(self.air_volume(), 3)) + ", m3\n"
+               + f"{round(self.thermal_capacity(Rs=False), 3)} Wh/(m2 K)\n"
+        res += f"air volume = {round(self.air_volume(), 3)} m3\n"
         return res
 
     def dict_of_properties(self) -> dict:
