@@ -1,7 +1,8 @@
 """ A class for a box-like space. 
 
-    Width x height is the (internal) area of the (single) external wall
-    which includes a window. The window area is calculated as
+    Width x height (w x h + d x h) is the (internal) area of the external wall
+    (external walls) which include a window (include windows). The window area
+    is calculated as
 
          window_area = facade_area x window_to_wall_ratio.
 
@@ -14,7 +15,6 @@ from dataclasses import dataclass
 from typing import Optional
 import pandas as pd
 import numpy as np
-from numpy.testing import assert_almost_equal
 
 # Local imports
 from .construction import Construction
@@ -22,10 +22,15 @@ from .construction import Construction
 
 @dataclass
 class Space:
-    """ Calculate heat capacity of box-like space. The basic assumption
-    (for now) is that width x height is the (internal) area of the
-    external wall which includes the window with a given (external)
-    window-to-wall ratio.
+    """ Calculate heat capacity of a box-like space featuring one or two
+    facades with a window.
+    (a) Window in one facade: width x height is the (internal) area of the
+        external wall which includes the window with the given (external)
+        window-to-wall ratio.
+    (b) Windows in two facades: width x height + depth x height is the
+        (internal) area of the external walls again including the windows using
+        the given (external) window-to-wall ratio to calculate window area of
+        which each of the two external facades gets half.
 
     Construction types for space surfaces are given as a list of tuples, 
     the first element is a descriptive string for which surface the 
@@ -34,7 +39,7 @@ class Space:
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
 
-    If two windows are present (window_in_two_facades == True), the
+    If two windows are present (windows_in_two_facades == True), the
     construction system for 'east' is set to 'ext'.
 
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
@@ -50,7 +55,7 @@ class Space:
     window_to_wall_ratio: float = 0.6
     window_frame_fraction: float = 0.15
     ceiling_split_fraction: float = 1.0
-    window_in_two_facades: bool = False
+    windows_in_two_facades: bool = False
 
     def __hash__(self):
         return hash((self.name,
@@ -63,7 +68,7 @@ class Space:
                      self.window_to_wall_ratio,
                      self.window_frame_fraction,
                      self.ceiling_split_fraction,
-                     self.window_in_two_facades))
+                     self.windows_in_two_facades))
 
     def __eq__(self, other):
         if not isinstance(other, Space):
@@ -82,7 +87,7 @@ class Space:
                            other.window_frame_fraction) and
             self._float_eq(self.ceiling_split_fraction,
                            other.ceiling_split_fraction) and
-            self.window_in_two_facades == other.window_in_two_facades
+            self.windows_in_two_facades == other.windows_in_two_facades
         )
 
     @staticmethod
@@ -100,10 +105,12 @@ class Space:
             print(f"{len(self.construction_list)} construction types found."\
                    " Must be at least 7!")
             sys.exit(9)
+
         if len(self.construction_list) > 8:
             print(f"{len(self.construction_list)} construction types found."\
                    " Cannot be more than 8!")
             sys.exit(9)
+
         if self.ceiling_split_fraction >= 0.98:
             self.construction_list = self.construction_list[:7]
 
@@ -112,7 +119,7 @@ class Space:
         self.net_floor_area = self.width*self.depth
 
         self.ignore_north = False
-        if self.window_in_two_facades:
+        if self.windows_in_two_facades:
             # With two windows present, full room *must* be considered. Also,
             # the construction for 'east' must be modified to 'ext'.
             self.construction_list[2] = self.construction_list[0]
@@ -128,7 +135,7 @@ class Space:
 
         # Calculate external facade area based on mid-line dimensions used for
         # internal walls, floor and ceiling.
-        if self.window_in_two_facades:
+        if self.windows_in_two_facades:
             # tbd
             self.facade_area = self.height*(self.width+self.depth) # ext incl. windows
             # Add external wall corner.
@@ -166,7 +173,7 @@ class Space:
         else:
             back_wall_area = self.width*self.height
 
-        if self.window_in_two_facades:
+        if self.windows_in_two_facades:
             ext_wall_area_1 = max(0, self.width*self.height\
                                      - 0.5*self.window_area())
             ext_wall_area_2 = max(0, self.depth*self.height\
@@ -323,7 +330,7 @@ class Space:
             This area is used for the calculation of internal lighting
             loads.
         """
-        if self.window_in_two_facades is False:
+        if self.windows_in_two_facades is False:
             if self.total_depth > self.deeper_than:
                 return self.width*(self.total_depth - self.deeper_than)
         return 0
@@ -420,7 +427,7 @@ class Space:
         res += f"net deep area = {round(self.net_deep_area(), 3)} m2\n"
         res += f"facade area A_W = {round(self.facade_area, 3)} m2\n"
         res += f"ceiling split fraction = {self.ceiling_split_fraction}\n"
-        res += f"windows in two facades is {str(self.window_in_two_facades)}\n"
+        res += f"windows in two facades is {str(self.windows_in_two_facades)}\n"
         res += f"window-to-wall ratio WWR_e = {round(self.window_to_wall_ratio, 3)}\n"
         res += f"window area A_w = {round(self.window_area(), 3)} m2\n"
         res += f"glass area A_g = {round(self.glass_area(), 3)} m2\n"
@@ -457,7 +464,7 @@ class Space:
             "net deep area": self.net_deep_area(),
             "A_W": self.facade_area,
             "ceiling split fraction": self.ceiling_split_fraction,
-            "windows in two facades": str(self.window_in_two_facades),
+            "windows in two facades": str(self.windows_in_two_facades),
             "WWR_e": self.window_to_wall_ratio,
             "A_w": self.window_area(),
             "A_g": self.glass_area(),
