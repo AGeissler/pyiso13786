@@ -166,15 +166,28 @@ class Space:
         else:
             back_wall_area = self.width*self.height
 
-        ext_wall_area = max(0, self.width*self.height - self.window_area())
+        if self.window_in_two_facades:
+            ext_wall_area_1 = max(0, self.width*self.height\
+                                     - 0.5*self.window_area())
+            ext_wall_area_2 = max(0, self.depth*self.height\
+                                     - 0.5*self.window_area())
+            s = np.array([ ext_wall_area_1,  # ext 1
+                           self.window_area(),  # window
+                           ext_wall_area_2,  # ext 2
+                           back_wall_area,
+                           self.depth*self.height,  # side wall
+                           self.eff_net_floor_area  # floor
+                           ])
+        else:
+            ext_wall_area = max(0, self.width*self.height - self.window_area())
+            s = np.array([ ext_wall_area,  # ext
+                           self.window_area(),  # window
+                           self.depth*self.height,  # side wall
+                           back_wall_area,
+                           self.depth*self.height,  # side wall
+                           self.eff_net_floor_area  # floor
+                           ])
 
-        s = np.array([ ext_wall_area,  # ext
-                       self.window_area(),  # window
-                       self.depth*self.height,  # side wall
-                       back_wall_area,
-                       self.depth*self.height,  # side wall
-                       self.eff_net_floor_area  # floor
-                       ])
         if len(self.construction_list) > 7:
             # Add two surface values for ceiling
             surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
@@ -187,7 +200,6 @@ class Space:
 
     def surface_internal_area_heat_capacities(self, Rs=True) -> np.ndarray:
         "Internal heat capacities for construction surfaces"
-
         c = []
         for con in self.construction_list:
             c.append(con[1].internal_area_heat_capacity(Rs=Rs))
@@ -238,7 +250,7 @@ class Space:
     def glass_area(self) -> float:
         """ Glass area in m2.
         """
-        glazing_area = (1-self.window_frame_fraction)*self.window_area()
+        glazing_area = (1 - self.window_frame_fraction)*self.window_area()
 
         return glazing_area
 
@@ -304,22 +316,20 @@ class Space:
         return o_width, o_height, opening_area
 
     def net_deep_area(self) -> float:
-        """ Calculate the net area of the space which lies
-            more than 'deeper_than' away from the facade.
+        """ Calculate the net area of the space which lies more than
+            'deeper_than' away from the facade. Valid only for a window in one
+            facade!
 
             This area is used for the calculation of internal lighting
             loads.
         """
-        if self.total_depth > self.deeper_than:
-            deep_area = self.width*(self.total_depth - self.deeper_than)
-        else:
-            deep_area = 0
-
-        return deep_area
+        if self.window_in_two_facades is False:
+            if self.total_depth > self.deeper_than:
+                return(self.width*(self.total_depth - self.deeper_than))
+        return 0
 
     def thermal_capacity(self, Rs=True) -> float:
-        """ Space internal heat capacity per net floor area
-            in Wh/(m2 K).
+        """ Space internal heat capacity per net floor area in Wh/(m2 K).
         """
         cr = 0
         area = self.surface_areas()
@@ -413,7 +423,7 @@ class Space:
         res += "facade area A_W = " + str("%.3f" % round(self.facade_area, 3)) + ", m2\n"
         res += "ceiling split fraction = "\
                 + str("%.3f" % self.ceiling_split_fraction) + ",\n"
-        res += "windows in two facades is " + str(self.window_in_two_facades) + ",\n",
+        res += "windows in two facades is " + str(self.window_in_two_facades) + ",\n"
         res += "window-to-wall ratio WWR_e = "\
                 + str("%.3f" % round(self.window_to_wall_ratio, 3)) + ",\n"
         res += "window area A_w = "\
