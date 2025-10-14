@@ -188,7 +188,7 @@ class Space:
                 self.construction_list[4][1].thickness_tot()*
                 self.construction_list[5][1].thickness_tot()+
                 self.construction_list[4][1].thickness_tot()*
-                self.construction_list[6][1].thickness_tot()+
+                self.construction_list[6][1].thickness_tot()
                 )
 
     def surface_areas(self) -> np.ndarray:
