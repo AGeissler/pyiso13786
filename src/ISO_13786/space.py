@@ -124,8 +124,9 @@ class Space:
         self.ignore_north = False
         if self.windows_in_two_facades:
             # With two windows present, full room *must* be considered. Also,
-            # the construction for 'east' must be modified to 'ext'.
-            self.construction_list[2] = self.construction_list[0]
+            # the construction for 'west' ("left of south") must be modified
+            # to 'ext'.
+            self.construction_list[4] = self.construction_list[0]
         else:
             # Set construction 'east' to construction 'west'. Necessary for
             # roll-back from a change in 'windows_in_two_facades'!
