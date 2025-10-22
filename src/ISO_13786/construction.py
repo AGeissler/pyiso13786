@@ -548,7 +548,7 @@ class Construction:
             res += '\nR_x          ' + str(self.thermal_resistance_cumsum())
         res += '\nU            ' + str(np.round(self.thermal_transmittance(), decimals=2))
         res += '\ndelta        ' + str(np.round(self.delta(), decimals=3))
-        res += f'\nU_{self.time}         ' + str(np.round(self.periodic_thermal_transmittance()), decimals=2)
+        res += f'\nU_{self.time}         ' + str(np.round(self.periodic_thermal_transmittance(), decimals=2))
         if detailed:
             res += '\nxi           ' + str(self.xi())
             res += '\nW_i          ' + str(self.layer_transfer_matrix())
