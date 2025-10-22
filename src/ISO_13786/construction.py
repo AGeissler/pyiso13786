@@ -342,7 +342,7 @@ class Construction:
     # Calculation according to ISO 13768:2017, chapters 7 and 8.
     # Equation numbers refer to this standard.
     def delta(self) -> np.ndarray:
-        "Cyclic penetration depth delta"
+        """Periodic penetration depth delta, eq. (11)"""
         # TIME: hour to seconds
         return np.sqrt(
             (self.thermal_conductivities() * self.time * 3600)
@@ -350,11 +350,12 @@ class Construction:
         )
 
     def xi(self) -> np.ndarray:
+        """eq. (13)"""
         return self.thicknesses() / self.delta()
 
     def layer_transfer_matrix(self) -> list[np.ndarray]:
-        # Calculate layer transfer matrix W for each construction
-        # layer.
+        """ Calculate layer transfer matrix W for each construction
+            layer, eq. (14)."""
         xi = self.xi()
         delta = self.delta()
         thermal_conductivity = self.thermal_conductivities()
@@ -380,9 +381,10 @@ class Construction:
         return zz
 
     def construction_transfer_matrix(self, Rs=True) -> np.ndarray:
-        # Calculate construction transfer matrix, optionally include
-        # surface resistances.
-        # Z = W_N * W_n-1 * ... * W_1"
+        """ Calculate construction transfer matrix, optionally include
+            surface resistances.
+            Z = W_N * W_n-1 * ... * W_1  (16)
+        """
         zz = self.layer_transfer_matrix()
 
         Z = np.zeros((2, 2), dtype=np.complex128)
@@ -395,7 +397,7 @@ class Construction:
                 rse = self.Rsi
             else:
                 rse = self.Rse
-            # Internal heat transfer coefficient.
+            # Internal heat transfer coefficient, eq. (18).
             Zsi = np.array(
                 [
                     [complex(1, 0), complex(-self.Rsi)],
@@ -404,7 +406,7 @@ class Construction:
                 dtype=np.complex128,
             )
 
-            # External heat transfer coefficient.
+            # External heat transfer coefficient, eq. (18).
             Zse = np.array(
                 [
                     [complex(1, 0), complex(-rse)],
@@ -413,6 +415,7 @@ class Construction:
                 dtype=np.complex128,
             )
 
+            # Eq. (17).
             Z = Zse.dot(Z)
             Z = Z.dot(Zsi)
 
@@ -421,7 +424,7 @@ class Construction:
     # TODO see how to improve the -> ndarray for complex arrays
 
     def periodic_thermal_transmittance(self) -> float:
-        "Y12 = -1/Z12"
+        """Y12 = -1/Z12, eq. (24)"""
         Y12 = -1 / self.construction_transfer_matrix()[0][1]
         # Modulus (absolute value) |Y12|.
         Y12 = np.sqrt((Y12.real) ** 2 + (Y12.imag) ** 2)
@@ -429,13 +432,14 @@ class Construction:
         return Y12
 
     def decrement_factor(self) -> float:
-        "f = |Y12|/U0"
+        """f = |Y12|/U0, eq. (25)"""
         return (
-            -self.periodic_thermal_transmittance() /
+            self.periodic_thermal_transmittance() /
                                     self.thermal_transmittance()
         )
 
     def time_shift(self) -> float:
+        """Time shift of periodic thermal transmittance, eq. (26)"""
         Zee = self.construction_transfer_matrix()
         # Time in hours
         return (
@@ -544,6 +548,7 @@ class Construction:
             res += '\nR_x          ' + str(self.thermal_resistance_cumsum())
         res += '\nU            ' + str(np.round(self.thermal_transmittance(), decimals=2))
         res += '\ndelta        ' + str(np.round(self.delta(), decimals=3))
+        res += f'\nU_{self.time}         ' + str(np.round(self.periodic_thermal_transmittance()), decimals=2)
         if detailed:
             res += '\nxi           ' + str(self.xi())
             res += '\nW_i          ' + str(self.layer_transfer_matrix())
