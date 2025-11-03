@@ -56,6 +56,9 @@ class Space:
     window_frame_fraction: float = 0.15
     ceiling_split_fraction: float = 1.0
     windows_in_two_facades: bool = False
+    roof_space: bool = False
+    jamb_height: float = 0.0  # Height of jamb wall (roof_space = True)
+    roof_tilt: float = 60
 
     def __hash__(self):
         return hash((self.name,
@@ -68,7 +71,11 @@ class Space:
                      self.glass_area_number,
                      self.window_frame_fraction,
                      self.ceiling_split_fraction,
-                     self.windows_in_two_facades))
+                     self.windows_in_two_facades,
+                     self.roof_space,
+                     self.jamb_height,
+                     self.roof_tilt
+                     ))
 
     def __eq__(self, other):
         if not isinstance(other, Space):
@@ -87,7 +94,10 @@ class Space:
                            other.window_frame_fraction) and
             self._float_eq(self.ceiling_split_fraction,
                            other.ceiling_split_fraction) and
-            self.windows_in_two_facades == other.windows_in_two_facades
+            self.windows_in_two_facades == other.windows_in_two_facades and
+            self.roof_space == other.roof_space and
+            self._float_eq(self.jamb_height, other.jamb_height) and
+            self._float_eq(self.roof_tilt, other.roof_tilt)
         )
 
     @staticmethod
@@ -101,18 +111,29 @@ class Space:
     def __post_init__(self):
         """ Do some checks and initialisations.
         """
-        if len(self.construction_list) < 7:
-            print(f"{len(self.construction_list)} construction types found."\
-                   " Must be at least 7!")
-            sys.exit(9)
+        if self.roof_space:
+            # jamb, window, roof, west, east, north, floor, ceiling [, ceiling2]
+            self.min_constructions = 8
+            self.max_constructions = 9
+        else:
+            # ext, window, west, east, north, floor, ceiling [, ceiling2]
+            self.min_constructions = 7
+            self.max_constructions = 8
 
-        if len(self.construction_list) > 8:
+        if len(self.construction_list) < self.min_constructions:
             print(f"{len(self.construction_list)} construction types found."\
-                   " Cannot be more than 8!")
+                   f" Must be at least {self.min_constructions}!")
+            sys.exit(9)
+        if len(self.construction_list) > self.max_constructions:
+            print(f"{len(self.construction_list)} construction types found."\
+                   f" Cannot be more than {self.max_constructions}!")
+            sys.exit(9)
+        if self.windows_in_two_facades and self.roof_space:
+            print("Two windows not allowed for roof space!")
             sys.exit(9)
 
         if self.ceiling_split_fraction >= 0.98:
-            self.construction_list = self.construction_list[:7]
+            self.construction_list = self.construction_list[:min_constructions]
 
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
@@ -173,24 +194,31 @@ class Space:
                 self.width*self.construction_list[6][1].thickness_tot()
                 )
         else:
-            self.facade_area = self.width*self.height  # ext including window
-            # Add half of west and east walls.
-            self.facade_area += 0.5*self.height*self.construction_list[2][1].thickness_tot()
-            self.facade_area += 0.5*self.height*self.construction_list[4][1].thickness_tot()
-            # Add half of floor/ceiling each.
-            self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
-            self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
-            # Add missing wall/ceiling corner areas.
-            self.facade_area += 0.5*(  # long wall, east and west partitions
-                self.construction_list[2][1].thickness_tot()*
-                self.construction_list[5][1].thickness_tot()+
-                self.construction_list[2][1].thickness_tot()*
-                self.construction_list[6][1].thickness_tot()+
-                self.construction_list[4][1].thickness_tot()*
-                self.construction_list[5][1].thickness_tot()+
-                self.construction_list[4][1].thickness_tot()*
-                self.construction_list[6][1].thickness_tot()
-                )
+            if self.roof_space:
+                dim_dict = create_dimension_dict(self.width, self.depth,
+                                                 self.height, self.jamb_height,
+                                                 self.roof_tilt,
+                                                 self.glass_area_number)
+                pass
+            else:
+                self.facade_area = self.width*self.height  # ext including window
+                # Add half of west and east walls.
+                self.facade_area += 0.5*self.height*self.construction_list[2][1].thickness_tot()
+                self.facade_area += 0.5*self.height*self.construction_list[4][1].thickness_tot()
+                # Add half of floor/ceiling each.
+                self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
+                self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
+                # Add missing wall/ceiling corner areas.
+                self.facade_area += 0.5*(  # long wall, east and west partitions
+                    self.construction_list[2][1].thickness_tot()*
+                    self.construction_list[5][1].thickness_tot()+
+                    self.construction_list[2][1].thickness_tot()*
+                    self.construction_list[6][1].thickness_tot()+
+                    self.construction_list[4][1].thickness_tot()*
+                    self.construction_list[5][1].thickness_tot()+
+                    self.construction_list[4][1].thickness_tot()*
+                    self.construction_list[6][1].thickness_tot()
+                    )
 
     def surface_areas(self) -> np.ndarray:
         "Applicable surface area for each construction."
@@ -221,7 +249,7 @@ class Space:
                            self.eff_net_floor_area  # floor
                            ])
 
-        if len(self.construction_list) > 7:
+        if len(self.construction_list) > min_constructions:
             # Add two surface values for ceiling
             surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
             surface_light = self.depth*self.width - surface_heavy
@@ -500,3 +528,48 @@ class Space:
             "thermal capacity": self.thermal_capacity(),
             "air volume": self.air_volume()
         }
+
+
+def create_dimension_dict(w_, d_, h_, h2_, tilt, gan):
+    d2_ = d2_fun(tilt, h_, h2_, d_)
+
+    dims = {
+        'jamb wall': [(0,0,0), (w_,0,0), (w_,0,h2_), (0,0,h2_)],
+        'roof': [(0,0,h2_), (w_,0,h2_), (w_,d2_,h_), (0,d2_,h_)],
+        'west': [(0,0,0), (0,0,h2_), (0,d2_,h_), (0,d_,h_), (0,d_,0)],
+        'north': [(0,d_,0), (0,d_,h_), (w_,d_,h_), (w_,d_,0)],
+        'east': [(w_,0,0), (w_,d_,0), (w_,d_,h_), (w_,d2_,h_), (w_,0,h2_)],
+        'floor': [(0,0,0), (0,d_,0), (w_,d_,0), (w_,0,0)],
+        'ceiling': [(0,d2_,h_),(w_,d2_,h_), (w_,d_,h_), (0,d_,h_)]
+    }
+
+    dims['window'] = tilted_window_vertices(space[tilt], gan)
+
+    return dims
+
+def d2_fun(a, h, h2, d, rnd=8):
+    """Calculate y-value for 'tilted roof'-'ceiling' junction."""
+    l = (h-h2)/round(np.cos(np.deg2rad(a)), rnd)
+    return round(d - l*round(np.sin(np.deg2rad(a)), rnd), rnd)
+
+def tilted_window_vertices(roof_space, glass_area_number):
+    """Calculate vertices of glass/window inserted into the tilted roof
+       with size 'glass_area_number'. Check first, if the desired size is
+       realistic."""
+    glass_area = glass_area_number*s.area(roof_space['floor'])
+
+    roof_area = s.area(roof_space['tilted roof'])
+
+    if glass_area <= 0.9*roof_area:
+        # Glass/window fits into roof assuming 10 % window frame area.
+        size_percentage = np.sqrt(glass_area/roof_area)  # scale x,y!
+        original_polygon = np.array(roof_space['tilted roof'])
+        centroid = np.mean(original_polygon, axis=0)
+        scaled_polygon = (original_polygon - centroid)*size_percentage\
+            + centroid
+        return scaled_polygon.tolist()
+    else:
+        print(f"GAN={glass_area_number} is too large for roof space!")
+
+    return None
+
