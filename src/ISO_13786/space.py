@@ -133,7 +133,7 @@ class Space:
             sys.exit(9)
 
         if self.ceiling_split_fraction >= 0.98:
-            self.construction_list = self.construction_list[:min_constructions]
+            self.construction_list = self.construction_list[:self.min_constructions]
 
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
@@ -249,7 +249,7 @@ class Space:
                            self.eff_net_floor_area  # floor
                            ])
 
-        if len(self.construction_list) > min_constructions:
+        if len(self.construction_list) > self.min_constructions:
             # Add two surface values for ceiling
             surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
             surface_light = self.depth*self.width - surface_heavy
