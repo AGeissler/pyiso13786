@@ -455,10 +455,12 @@ class Space:
     def air_volume(self) -> float:
         """ Internal air volume in m3.
         """
+        if self.roof_space:
+            return(round(poly_area(self.dim_dict['west'])*self.width), 2)
         return self.width*self.height*self.depth
 
     def properties(self):
-        """Dict of space properties"""
+        """Dict of (a few) space properties"""
         return {
             'name': self.name,  # space name
             'constructions': {loc: con.properties()
