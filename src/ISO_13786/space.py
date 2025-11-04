@@ -37,7 +37,7 @@ class Space:
     from the external wall (assuming a south facing external wall) followed
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
-      jamb, win, east, north, west, floor, ceiling [, ceiling2], roof
+      roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
 
     If two windows are present (windows_in_two_facades == True), the
     construction system for 'west' is set to 'ext'.
@@ -113,13 +113,16 @@ class Space:
         """ Do some checks and initialisations.
         """
         if self.roof_space:
-            # jamb, window, roof, west, east, north, floor, ceiling [, ceiling2]
+            # roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
             self.min_constructions = 8
             self.max_constructions = 9
+            ext, win, jamb, east, north, west, floor, ceiling =\
+                                                      0, 1, 2, 3, 4, 5, 6, 7
         else:
-            # ext, window, west, east, north, floor, ceiling [, ceiling2]
+            # ext, win, east, north, west, floor, ceiling [, ceiling2]
             self.min_constructions = 7
             self.max_constructions = 8
+            ext, win, east, north, west, floor, ceiling = 0, 1, 2, 3, 4, 5, 6
 
         if len(self.construction_list) < self.min_constructions:
             print(f"{len(self.construction_list)} construction types found."\
@@ -148,12 +151,14 @@ class Space:
             # With two windows present, full room *must* be considered. Also,
             # the construction for 'west' ("left of south") must be modified
             # to 'ext'.
-            self.construction_list[4] = self.construction_list[0]
+            self.construction_list[west] = self.construction_list[ext]
         else:
-            # Set construction 'east' to construction 'west'. Necessary for
-            # roll-back from a change in 'windows_in_two_facades'!
-            # << Todo: make "different internal walls" possible ...(!!) >>
-            self.construction_list[2] = self.construction_list[4]
+            if not self.roof_space:
+                # Set construction 'east' to construction 'west'. Necessary for
+                # roll-back from a change in 'windows_in_two_facades' (only
+                # possible for box-like space)!
+                # << Todo: make "different internal walls" possible ...(!?) >>
+                self.construction_list[east] = self.construction_list[west]
             # Set effective depth to be used, if less than actual depth,
             # ignore back wall entirely for subsequent calculations!
             if self.depth > self.depth_factor*self.height:
@@ -171,62 +176,62 @@ class Space:
             self.facade_area.append(self.height*self.width)  # long wall, [0]
             self.facade_area.append(self.height*self.depth)  # short wall, [1]
             # Add external wall corner.
-            self.facade_area[0] += self.height*self.construction_list[0][1].thickness_tot()
-            self.facade_area[1] += self.height*self.construction_list[0][1].thickness_tot()
+            self.facade_area[0] += self.height*self.construction_list[ext][1].thickness_tot()
+            self.facade_area[1] += self.height*self.construction_list[ext][1].thickness_tot()
             # Add half of west and north walls each.
-            self.facade_area[0] += 0.5*self.height*self.construction_list[4][1].thickness_tot()
-            self.facade_area[1] += 0.5*self.height*self.construction_list[3][1].thickness_tot()
+            self.facade_area[0] += 0.5*self.height*self.construction_list[west][1].thickness_tot()
+            self.facade_area[1] += 0.5*self.height*self.construction_list[north][1].thickness_tot()
             # Add half of floor/ceiling each.
-            self.facade_area[0] += 0.5*self.width*self.construction_list[5][1].thickness_tot()
-            self.facade_area[0] += 0.5*self.width*self.construction_list[6][1].thickness_tot()
-            self.facade_area[1] += 0.5*self.depth*self.construction_list[5][1].thickness_tot()
-            self.facade_area[1] += 0.5*self.depth*self.construction_list[6][1].thickness_tot()
+            self.facade_area[0] += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
+            self.facade_area[0] += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
+            self.facade_area[1] += 0.5*self.depth*self.construction_list[floor][1].thickness_tot()
+            self.facade_area[1] += 0.5*self.depth*self.construction_list[ceiling][1].thickness_tot()
             # Add missing wall/ceiling corner areas.
             self.facade_area[1] += 0.5*(  # short wall, north partition
-                self.width*self.construction_list[3][1].thickness_tot()*
-                self.width*self.construction_list[5][1].thickness_tot()+
-                self.width*self.construction_list[3][1].thickness_tot()*
-                self.width*self.construction_list[6][1].thickness_tot()
+                self.width*self.construction_list[north][1].thickness_tot()*
+                self.width*self.construction_list[floor][1].thickness_tot()+
+                self.width*self.construction_list[north][1].thickness_tot()*
+                self.width*self.construction_list[ceiling][1].thickness_tot()
                 )
             self.facade_area[0] += 0.5*(  # long wall, west partition
-                self.width*self.construction_list[4][1].thickness_tot()*
-                self.width*self.construction_list[5][1].thickness_tot()+
-                self.width*self.construction_list[4][1].thickness_tot()*
-                self.width*self.construction_list[6][1].thickness_tot()
+                self.width*self.construction_list[west][1].thickness_tot()*
+                self.width*self.construction_list[floor][1].thickness_tot()+
+                self.width*self.construction_list[west][1].thickness_tot()*
+                self.width*self.construction_list[ceiling][1].thickness_tot()
                 )
         else:
             if self.roof_space:
-                dim_dict = create_dimension_dict(self.width, self.depth,
-                                                 self.height, self.jamb_height,
-                                                 self.roof_tilt,
-                                                 self.glass_area_number)
-                self.roof_area = poly_area(dim_dict['roof'])
+                self.dim_dict = create_dimension_dict(self.width, self.depth,
+                                                      self.height, self.jamb_height,
+                                                      self.roof_tilt,
+                                                      self.glass_area_number)
+                self.roof_area = poly_area(self.dim_dict['roof'])
                 # Add half of west and east walls.
                 l0 = poly_side_lengths(dim_dict['roof'])[0]
-                self.roof_area += 0.5*l0*self.construction_list[2][1].thickness_tot()
-                self.roof_area += 0.5*l0*self.construction_list[4][1].thickness_tot()
+                self.roof_area += 0.5*l0*self.construction_list[east][1].thickness_tot()
+                self.roof_area += 0.5*l0*self.construction_list[west][1].thickness_tot()
                 # Add jamb wall (calculate 'tilt-width').
-                self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
+                self.facade_area += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
                 # Add half of ceiling.
-                self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
-           else:
+                self.facade_area += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
+            else:
                 self.facade_area = self.width*self.height  # ext including window
                 # Add half of west and east walls.
-                self.facade_area += 0.5*self.height*self.construction_list[2][1].thickness_tot()
-                self.facade_area += 0.5*self.height*self.construction_list[4][1].thickness_tot()
+                self.facade_area += 0.5*self.height*self.construction_list[east][1].thickness_tot()
+                self.facade_area += 0.5*self.height*self.construction_list[west][1].thickness_tot()
                 # Add half of floor/ceiling each.
-                self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
-                self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
+                self.facade_area += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
+                self.facade_area += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
                 # Add missing wall/ceiling corner areas.
                 self.facade_area += 0.5*(  # long wall, east and west partitions
-                    self.construction_list[2][1].thickness_tot()*
-                    self.construction_list[5][1].thickness_tot()+
-                    self.construction_list[2][1].thickness_tot()*
-                    self.construction_list[6][1].thickness_tot()+
-                    self.construction_list[4][1].thickness_tot()*
-                    self.construction_list[5][1].thickness_tot()+
-                    self.construction_list[4][1].thickness_tot()*
-                    self.construction_list[6][1].thickness_tot()
+                    self.construction_list[east][1].thickness_tot()*
+                    self.construction_list[floor][1].thickness_tot()+
+                    self.construction_list[east][1].thickness_tot()*
+                    self.construction_list[ceiling][1].thickness_tot()+
+                    self.construction_list[west][1].thickness_tot()*
+                    self.construction_list[floor][1].thickness_tot()+
+                    self.construction_list[west][1].thickness_tot()*
+                    self.construction_list[ceiling][1].thickness_tot()
                     )
 
     def surface_areas(self) -> np.ndarray:
@@ -249,22 +254,43 @@ class Space:
                            self.eff_net_floor_area  # floor
                            ])
         else:
-            ext_wall_area = max(0, self.width*self.height - self.window_area())
-            s = np.array([ ext_wall_area,  # ext
-                           self.window_area(),  # window
-                           self.depth*self.height,  # side wall
-                           back_wall_area,
-                           self.depth*self.height,  # side wall
-                           self.eff_net_floor_area  # floor
-                           ])
+            if self.roof_space:
+                pass
+                ext_wall_area = max(0, poly_area(self.dim_dict['roof'])\
+                                                          - self.window_area())
+                s = np.array([ ext_wall_area,  # roof
+                               self.window_area(),  # window
+                               self.jamb_height*self.width,  # jamb wall
+                               poly_area(self.dim_dict['east']),  # side wall
+                               back_wall_area,
+                               poly_area(self.dim_dict['west']),  # side wall
+                               self.eff_net_floor_area  # floor
+                               ])
+            else:
+                ext_wall_area = max(0, self.width*self.height - self.window_area())
+                s = np.array([ ext_wall_area,  # ext
+                               self.window_area(),  # window
+                               self.depth*self.height,  # side wall
+                               back_wall_area,
+                               self.depth*self.height,  # side wall
+                               self.eff_net_floor_area  # floor
+                               ])
 
         if len(self.construction_list) > self.min_constructions:
-            # Add two surface values for ceiling
-            surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
-            surface_light = self.depth*self.width - surface_heavy
+            # Add two surface values for ceilings.
+            if self.roof_space:
+                c0 = poly_area(self.dim_dict['ceiling'])
+                surface_heavy = (1 - self.ceiling_split_fraction)*c0
+                surface_light = c0 - surface_heavy
+            else:
+                surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
+                surface_light = self.depth*self.width - surface_heavy
             s = np.append(s, (surface_heavy, surface_light))
         else:
-            s = np.append(s, self.depth*self.width)  # ceiling
+            if self.roof_space:
+                s = np.append(s, poly_area(self.dim_dict['ceiling']))
+            else:
+                s = np.append(s, self.depth*self.width)  # ceiling
 
         return s
 
@@ -283,8 +309,14 @@ class Space:
             constructor. It is calculated with 'external' dimensions;
             mid-line dimensions are used for internal walls.
         """
-        area = self.total_depth*self.width
-        circumferencelist = [0, 2, 3, 4]
+        area = self.net_floor_area
+
+        if self.roof_space:
+            # roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
+            circumferencelist = [2, 3, 4, 5]
+        else:
+            # ext, win, east, north, west, floor, ceiling [, ceiling2]
+            circumferencelist = [0, 2, 3, 4]
 
         for i in circumferencelist:
             area += self.construction_list[i][1].thickness_tot()/2
@@ -296,11 +328,19 @@ class Space:
             calculated with 'external' dimensions; mid-line dimensions
             are used for internal walls.
         """
-        area = self.surface_areas()[4]  # floor
-        circumferencelist = [0, 2, 4]
+        area = self.eff_net_floor_area
+
+        if self.roof_space:
+            # roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
+            circumferencelist = [2, 3, 5]
+            north = 4
+        else:
+            # ext, win, east, north, west, floor, ceiling [, ceiling2]
+            circumferencelist = [0, 2, 4]
+            north = 3
 
         if self.ignore_north is False:
-            circumferencelist.append(3)
+            circumferencelist.append(north)
 
         for i in circumferencelist:
             area += self.construction_list[i][1].thickness_tot()/2
@@ -318,52 +358,65 @@ class Space:
         return self.window_area()/self.eff_net_floor_area
 
     def window_to_wall_ratio(self) -> list:
-        """ Overall window-to-wall ratio."""
+        """ Overall (external) window-to-wall or window-to-roof ratio."""
         if self.windows_in_two_facades:
             return [0.5*self.window_area()/self.facade_area[0],
                     0.5*self.window_area()/self.facade_area[1]]
-        return [self.window_area()/self.facade_area]
+        else:
+            if self.roof_space:
+                return [self.window_area()/self.roof_area]
+            return [self.window_area()/self.facade_area]
 
     def glass_to_wall_ratio(self) -> list:
         """ Glass to wall ratio defined as glazing area per internal
             wall area. For two windows it is assumed that the *glass area* is
             evenly distributed on the two facades.
-            The glass-to-wall ratio can be used as WWR for E+!
+            The glass-to-wall ratio can be used as WWR for E+ for box spaces!
         """
         if self.windows_in_two_facades:
             return [0.5*self.glass_area/(self.width*self.height),  # long wall
                     0.5*self.glass_area/(self.depth*self.height)]  # short wall
-        return [self.glass_area/(self.width*self.height)]
+        else:
+            if self.roof_space:
+                return [self.glass_area/poly_area(self.dim_dict['roof'])]
+            return [self.glass_area/(self.width*self.height)]
 
     def glass_fraction(self) -> list:
         """ Glass fraction defined as glazing area per (external) facade
-            area.
+            or roof area.
         """
         if self.windows_in_two_facades:
             return [0.5*self.glass_area/self.facade_area[0],  # long wall
                     0.5*self.glass_area/self.facade_area[1]]  # short wall
-        return [self.glass_area/self.facade_area]
+        else:
+            if self.roof_space:
+                return [self.glass_area/self.roof_area]
+            return [self.glass_area/self.facade_area]
 
     def opening_dimensions(self, high=False):
         """ Opening dimensions of a ventilation window based on the
             window fraction. It is assumed that 30 % of the frame area
             is part of the opening, i.e. 70 % of the frame are 'fixed'.
         """
-        std_height = 1.55  # m
+        std_height = 1.25  # m
         opening_area = (1 - 0.7*self.window_frame_fraction)\
                                                     *self.window_area()
         if high:
             # Assume window is "as high as possible", i.e. spanning the
-            # internal ceiling height. The clear opening is reduced by
-            # the fixed fraction of the frame, only.
-            o_height = (1 - 0.7*self.window_frame_fraction)*self.height
+            if self.roof_space:
+                # available roof 'length' or
+                l0 = poly_side_lengths(dim_dict['roof'])[0]
+            else:
+                # the internal ceiling height.
+                l0 = self.height
+            # Only the fixed frame fraction reduces the clear opening area.
+            o_height = (1 - 0.7*self.window_frame_fraction)*l0
             o_width = opening_area/o_height
         else:
             # Assume "standard" height for window, i.e. usual dimension
             # for U-value and sound insulation measurements reduced by
-            # the fixed fraction of the frame.
-            # Make sure the corresponding window width is less than the
-            # available space width!
+            # the fixed fraction of the frame. Make sure the corresponding
+            # window width is less than the available space width!
             w_width = self.window_area()/std_height
 
             if w_width < self.width:
