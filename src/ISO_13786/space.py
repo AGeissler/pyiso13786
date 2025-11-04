@@ -19,7 +19,7 @@ import numpy as np
 
 # Local imports
 from .construction import Construction
-
+from .utils import create_dimension_dict, poly_side_lengths
 
 @dataclass
 class Space:
@@ -37,13 +37,14 @@ class Space:
     from the external wall (assuming a south facing external wall) followed
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
+      jamb, win, east, north, west, floor, ceiling [, ceiling2], roof
 
     If two windows are present (windows_in_two_facades == True), the
-    construction system for 'east' is set to 'ext'.
+    construction system for 'west' is set to 'ext'.
 
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
-    of the total ceiling area and is assumed to be in located away from the
-    external facade(s).
+    of the total ceiling area and is assumed to be located away from the
+    external facade(s) / the roof.
     """
     name: str
     width: float
@@ -199,8 +200,16 @@ class Space:
                                                  self.height, self.jamb_height,
                                                  self.roof_tilt,
                                                  self.glass_area_number)
-                pass
-            else:
+                self.roof_area = poly_area(dim_dict['roof'])
+                # Add half of west and east walls.
+                l0 = poly_side_lengths(dim_dict['roof'])[0]
+                self.roof_area += 0.5*l0*self.construction_list[2][1].thickness_tot()
+                self.roof_area += 0.5*l0*self.construction_list[4][1].thickness_tot()
+                # Add jamb wall (calculate 'tilt-width').
+                self.facade_area += 0.5*self.width*self.construction_list[5][1].thickness_tot()
+                # Add half of ceiling.
+                self.facade_area += 0.5*self.width*self.construction_list[6][1].thickness_tot()
+           else:
                 self.facade_area = self.width*self.height  # ext including window
                 # Add half of west and east walls.
                 self.facade_area += 0.5*self.height*self.construction_list[2][1].thickness_tot()
@@ -470,7 +479,10 @@ class Space:
         res += f"surface heat cap = {heatcap} Wh/(m2 K)\n"
         res += f"effective net floor area NGF = {round(self.eff_net_floor_area, 3)} m2\n"
         res += f"net deep area = {round(self.net_deep_area(), 3)} m2\n"
-        res += f"facade area A_W = {np.round(self.facade_area, decimals=3)} m2\n"
+        if self.roof_space:
+             res += f"roof area A_R = {np.round(self.roof_area, decimals=3)} m2\n"
+        else:
+            res += f"facade area A_W = {np.round(self.facade_area, decimals=3)} m2\n"
         res += f"ceiling split fraction = {self.ceiling_split_fraction}\n"
         res += f"windows in two facades is {str(self.windows_in_two_facades)}\n"
         res += f"window-to-wall ratio WWR_e = {np.round(self.window_to_wall_ratio(), decimals=3)}\n"
@@ -504,6 +516,13 @@ class Space:
     def dict_of_properties(self) -> dict:
         """Create dict of space properties.
         """
+        if roof_space:
+            ext_key = 'A_R'
+            ext_val = round(self.roof_area, 3)
+        else:
+            ext_key = 'A_W'
+            ext_val = round(self.facade_area, 3)
+
         return {
             "name": self.name,
             "net floor area": self.net_floor_area,
@@ -513,13 +532,13 @@ class Space:
             "NGF": self.eff_net_floor_area,
             "deeper than": self.deeper_than,
             "net deep area": self.net_deep_area(),
-            "A_W": self.facade_area,
+            ext_key: ext_val,
             "ceiling split fraction": self.ceiling_split_fraction,
             "windows in two facades": str(self.windows_in_two_facades),
-            "WWR_e": self.window_to_wall_ratio(),
+            "WWR_e": self.window_to_wall_ratio(),  # roof_space (key)!
             "A_w": self.window_area(),
             "A_g": self.glass_area,
-            "A_g/A_W": self.glass_fraction(),
+            "A_g/A_W": self.glass_fraction(),  # roof_space (key)!
             "A_w/NGF": self.window_fraction(),
             "A_g/NGF": self.glass_area_number,
             "GWR_i": self.glass_to_wall_ratio(),
@@ -528,48 +547,3 @@ class Space:
             "thermal capacity": self.thermal_capacity(),
             "air volume": self.air_volume()
         }
-
-
-def create_dimension_dict(w_, d_, h_, h2_, tilt, gan):
-    d2_ = d2_fun(tilt, h_, h2_, d_)
-
-    dims = {
-        'jamb wall': [(0,0,0), (w_,0,0), (w_,0,h2_), (0,0,h2_)],
-        'roof': [(0,0,h2_), (w_,0,h2_), (w_,d2_,h_), (0,d2_,h_)],
-        'west': [(0,0,0), (0,0,h2_), (0,d2_,h_), (0,d_,h_), (0,d_,0)],
-        'north': [(0,d_,0), (0,d_,h_), (w_,d_,h_), (w_,d_,0)],
-        'east': [(w_,0,0), (w_,d_,0), (w_,d_,h_), (w_,d2_,h_), (w_,0,h2_)],
-        'floor': [(0,0,0), (0,d_,0), (w_,d_,0), (w_,0,0)],
-        'ceiling': [(0,d2_,h_),(w_,d2_,h_), (w_,d_,h_), (0,d_,h_)]
-    }
-
-    dims['window'] = tilted_window_vertices(space[tilt], gan)
-
-    return dims
-
-def d2_fun(a, h, h2, d, rnd=8):
-    """Calculate y-value for 'tilted roof'-'ceiling' junction."""
-    l = (h-h2)/round(np.cos(np.deg2rad(a)), rnd)
-    return round(d - l*round(np.sin(np.deg2rad(a)), rnd), rnd)
-
-def tilted_window_vertices(roof_space, glass_area_number):
-    """Calculate vertices of glass/window inserted into the tilted roof
-       with size 'glass_area_number'. Check first, if the desired size is
-       realistic."""
-    glass_area = glass_area_number*s.area(roof_space['floor'])
-
-    roof_area = s.area(roof_space['tilted roof'])
-
-    if glass_area <= 0.9*roof_area:
-        # Glass/window fits into roof assuming 10 % window frame area.
-        size_percentage = np.sqrt(glass_area/roof_area)  # scale x,y!
-        original_polygon = np.array(roof_space['tilted roof'])
-        centroid = np.mean(original_polygon, axis=0)
-        scaled_polygon = (original_polygon - centroid)*size_percentage\
-            + centroid
-        return scaled_polygon.tolist()
-    else:
-        print(f"GAN={glass_area_number} is too large for roof space!")
-
-    return None
-
