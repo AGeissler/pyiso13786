@@ -178,8 +178,8 @@ class Space:
             # Add external wall corner.
             self.facade_area[0] += self.height*self.construction_list[ext][1].thickness_tot()
             self.facade_area[1] += self.height*self.construction_list[ext][1].thickness_tot()
-            # Add half of west and north walls each.
-            self.facade_area[0] += 0.5*self.height*self.construction_list[west][1].thickness_tot()
+            # Add half of east and north walls each.
+            self.facade_area[0] += 0.5*self.height*self.construction_list[east][1].thickness_tot()
             self.facade_area[1] += 0.5*self.height*self.construction_list[north][1].thickness_tot()
             # Add half of floor/ceiling each.
             self.facade_area[0] += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
@@ -193,10 +193,10 @@ class Space:
                 self.width*self.construction_list[north][1].thickness_tot()*
                 self.width*self.construction_list[ceiling][1].thickness_tot()
                 )
-            self.facade_area[0] += 0.5*(  # long wall, west partition
-                self.width*self.construction_list[west][1].thickness_tot()*
+            self.facade_area[0] += 0.5*(  # long wall, east partition
+                self.width*self.construction_list[east][1].thickness_tot()*
                 self.width*self.construction_list[floor][1].thickness_tot()+
-                self.width*self.construction_list[west][1].thickness_tot()*
+                self.width*self.construction_list[east][1].thickness_tot()*
                 self.width*self.construction_list[ceiling][1].thickness_tot()
                 )
         else:
@@ -206,13 +206,13 @@ class Space:
                                                       self.roof_tilt,
                                                       self.glass_area_number)
                 self.roof_area = poly_area(self.dim_dict['roof'])
-                # Add half of west and east walls.
+                # Add half of west and east wall cross-sections.
                 l0 = poly_side_lengths(dim_dict['roof'])[0]
                 self.roof_area += 0.5*l0*self.construction_list[east][1].thickness_tot()
                 self.roof_area += 0.5*l0*self.construction_list[west][1].thickness_tot()
-                # Add jamb wall (calculate 'tilt-width').
+                # Add jamb wall cross-section (ToDo: calculate 'tilt-width').
                 self.facade_area += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
-                # Add half of ceiling.
+                # Add half of ceiling cross-section.
                 self.facade_area += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
             else:
                 self.facade_area = self.width*self.height  # ext including window
