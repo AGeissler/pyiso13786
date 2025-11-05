@@ -19,7 +19,7 @@ import numpy as np
 
 # Local imports
 from .construction import Construction
-from .utils import create_dimension_dict, poly_side_lengths
+from .utils import create_dimension_dict, poly_area, poly_side_lengths
 
 @dataclass
 class Space:
@@ -207,13 +207,13 @@ class Space:
                                                       self.glass_area_number)
                 self.roof_area = poly_area(self.dim_dict['roof'])
                 # Add half of west and east wall cross-sections.
-                l0 = poly_side_lengths(dim_dict['roof'])[0]
+                l0 = poly_side_lengths(self.dim_dict['roof'])[0]
                 self.roof_area += 0.5*l0*self.construction_list[east][1].thickness_tot()
                 self.roof_area += 0.5*l0*self.construction_list[west][1].thickness_tot()
                 # Add jamb wall cross-section (ToDo: calculate 'tilt-width').
-                self.facade_area += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
+                self.roof_area += 0.5*self.width*self.construction_list[floor][1].thickness_tot()
                 # Add half of ceiling cross-section.
-                self.facade_area += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
+                self.roof_area += 0.5*self.width*self.construction_list[ceiling][1].thickness_tot()
             else:
                 self.facade_area = self.width*self.height  # ext including window
                 # Add half of west and east walls.
@@ -405,7 +405,7 @@ class Space:
             # Assume window is "as high as possible", i.e. spanning the
             if self.roof_space:
                 # available roof 'length' or
-                l0 = poly_side_lengths(dim_dict['roof'])[0]
+                l0 = poly_side_lengths(self.dim_dict['roof'])[0]
             else:
                 # the internal ceiling height.
                 l0 = self.height

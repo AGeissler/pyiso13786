@@ -123,7 +123,7 @@ def create_dimension_dict(w_, d_, h_, h2_, tilt, gan):
         'ceiling': [(0,d2_,h_),(w_,d2_,h_), (w_,d_,h_), (0,d_,h_)]
     }
 
-    dims['window'] = tilted_window_vertices(space[tilt], gan)
+    dims['window'] = tilted_window_vertices(dims, gan)
 
     return dims
 
@@ -136,14 +136,14 @@ def tilted_window_vertices(roof_space, glass_area_number):
     """Calculate vertices of glass/window inserted into the tilted roof
        with size 'glass_area_number'. Check first, if the desired size is
        realistic."""
-    glass_area = glass_area_number*s.area(roof_space['floor'])
+    glass_area = glass_area_number*poly_area(roof_space['floor'])
 
-    roof_area = poly_area(roof_space['tilted roof'])
+    roof_area = poly_area(roof_space['roof'])
 
     if glass_area <= 0.9*roof_area:
         # Glass/window fits into roof assuming 10 % window frame area.
         size_percentage = np.sqrt(glass_area/roof_area)  # scale x,y!
-        original_polygon = np.array(roof_space['tilted roof'])
+        original_polygon = np.array(roof_space['roof'])
         centroid = np.mean(original_polygon, axis=0)
         scaled_polygon = (original_polygon - centroid)*size_percentage\
             + centroid
