@@ -456,7 +456,7 @@ class Space:
         """ Internal air volume in m3.
         """
         if self.roof_space:
-            return(round(poly_area(self.dim_dict['west'])*self.width), 2)
+            return round(poly_area(self.dim_dict['west'])*self.width, 3)
         return self.width*self.height*self.depth
 
     def properties(self):
