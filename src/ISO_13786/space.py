@@ -571,7 +571,7 @@ class Space:
     def dict_of_properties(self) -> dict:
         """Create dict of space properties.
         """
-        if roof_space:
+        if self.roof_space:
             ext_key = 'A_R'
             ext_val = round(self.roof_area, 3)
         else:
