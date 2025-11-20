@@ -538,6 +538,7 @@ class Space:
         res += f"net deep area = {round(self.net_deep_area(), 3)} m2\n"
         if self.roof_space:
              res += f"roof area A_R = {np.round(self.roof_area, decimals=3)} m2\n"
+             res += f"roof tilt = {self.roof_tilt}°\n"
         else:
             res += f"facade area A_W = {np.round(self.facade_area, decimals=3)} m2\n"
         res += f"ceiling split fraction = {self.ceiling_split_fraction}\n"
