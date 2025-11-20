@@ -10,17 +10,26 @@ from typing import Optional
 
 @dataclass
 class Construction:
-    name: str
-    layers: list[Layer]
-    # int, i = internal, ext, e = external :
-    temp_int: float = 20.0  # Temperature in Celsius
-    temp_ext: float = -5.0
-    rel_hum_i: float = 0.65  # RHi
-    rel_hum_e: float = 0.9  # RHe
-    Rsi: float = 0.130  # Rsi
-    Rse: float = 0.040  # Rse
-    time: float = 24  # time of the analysis in hour
-    partition: bool = True
+    """ The element 'type' is the definition of the surface type, i.e. wall,
+    floor, ceiling. If Construction.partion is false, the outside surface will
+    have R_se as external heat transfer resistance, otherwise R_si by type
+    according to ISO 6946
+    """
+    def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
+                 rel_hum_e=0.9, time=24, type='wall', partition=True):
+        self.name = name
+        self.layers = layers  # list[Layer,]
+        # int, i = internal, ext, e = external :
+        self.temp_int = temp_int  # Temperature in Celsius
+        self.temp_ext= temp_ext
+        self.rel_hum_i= rel_hum_i  # RHi
+        self.rel_hum_e = rel_hum_e  # RHe
+        self.time = time  # time of the analysis in hour
+        self.type = type  # one of 'wall', 'floor', 'ceiling'
+        self.partition = partition
+
+        self.Rsi, self.Rse = self.heat_transfer_resistance(self.partition,
+                                                           self.type)
 
     def __hash__(self):
         return hash((self.name,
@@ -58,6 +67,24 @@ class Construction:
         # Use math.isclose for floating-point comparison
         return math.isclose(a, b, abs_tol=tol)
 
+    @staticmethod
+    def heat_transfer_resistance(partition, type):
+        """ Return internal and external heat transfer resistance according to
+            ISO 6946 depending on construction usage (partition and one of
+            wall, floor, ceiling). """
+        if partition is True:
+            # We have an internal construction.
+            if type == 'wall':
+                return 0.13, 0.13    # Rsi, Rse
+            elif type == 'ceiling':
+                return 0.10, 0.17
+            return 0.17, 0.10
+        # We have an external construction.
+        if type == 'wall':
+            return 0.13, 0.04
+        elif type == 'ceiling':  # actually 'roof'
+            return 0.10, 0.04
+        return 0.17, 0.04  # floor above ambient
 
     def thicknesses(self) -> np.ndarray:
         "np.array with thickness of each Layer"
@@ -393,10 +420,10 @@ class Construction:
             Z = Z.dot(zz[-1 - i])  # scalar product
 
         if Rs:
-            if self.partition:
-                rse = self.Rsi
-            else:
-                rse = self.Rse
+            #if self.partition:
+            #    rse = self.Rsi
+            #else:
+            #    rse = self.Rse
             # Internal heat transfer coefficient, eq. (18).
             Zsi = np.array(
                 [
@@ -409,7 +436,7 @@ class Construction:
             # External heat transfer coefficient, eq. (18).
             Zse = np.array(
                 [
-                    [complex(1, 0), complex(-rse)],
+                    [complex(1, 0), complex(-self.Rse)],
                     [complex(0, 0), complex(1, 0)],
                 ],
                 dtype=np.complex128,
