@@ -31,13 +31,15 @@ class Space:
     (b) Windows in two facades: Ag/2 is inserted in each of the external walls
         (width x height, depth x height).
 
-    Construction types for space surfaces are given as a list of tuples,
+    Construction systems for space surfaces are given as a list of tuples,
     the first element is a descriptive string for which surface the
     construction is applied to. The strings are defined counterclockwise
     from the external wall (assuming a south facing external wall) followed
     by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
       roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
+
+    The second tuple element is an instance of class 'Construction'.
 
     If two windows are present (windows_in_two_facades == True), the
     construction system for 'west' is set to 'ext'.
@@ -50,7 +52,7 @@ class Space:
     width: float
     height: float
     depth: float
-    construction_list: list[(str, Construction)]
+    construction_list: list[(str, Construction)]  # name, instance
     depth_factor: float = 2.5
     deeper_than: float = 4.0  # m
     glass_area_number: float = 0.54
