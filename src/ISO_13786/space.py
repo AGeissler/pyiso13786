@@ -533,7 +533,10 @@ class Space:
         res += f"surface areas = {np.round(self.surface_areas(), decimals=3)} m2\n"
         heatcap = np.round(
             self.surface_internal_area_heat_capacities(Rs=True), decimals=3)
-        res += f"surface heat cap = {heatcap} Wh/(m2 K)\n"
+        res += f"int. surface heat cap w/ Rsi = {heatcap} Wh/(m2 K)\n"
+        heatcap = np.round(
+            self.surface_internal_area_heat_capacities(Rs=False), decimals=3)
+        res += f"int. surface heat cap w/o Rsi = {heatcap} Wh/(m2 K)\n"
         rsi = [surface[1].Rsi for surface in self.construction_list]
         res += f"surface R_si = {rsi} W/(m2 K)\n"
         res += f"effective net floor area NGF = {round(self.eff_net_floor_area, 3)} m2\n"
