@@ -56,7 +56,7 @@ class Space:
     depth_factor: float = 2.5
     deeper_than: float = 4.0  # m
     glass_area_number: float = 0.54
-    window_frame_fraction: float = 0.15
+    window_frame_fraction: float = 0.25
     ceiling_split_fraction: float = 1.0
     windows_in_two_facades: bool = False
     roof_space: bool = False
