@@ -70,14 +70,13 @@ room = Space(name="firstspace", width=6.5, height=2.6, depth=8.5,
              construction_list=[('ext', wall_1a), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
                                 ('floor', floor_1a), ('ceiling', ceiling_1a)],
-             orientation = 'S',
              depth_factor = 5.0)
 
 room_restricted = Space(name="firstspace", width=6.5, height=2.6, depth=8.5,
              construction_list=[('ext', wall_1a), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
-                                ('floor', floor_1a), ('ceiling', ceiling_1a)],
-             orientation = 'S')
+                                ('floor', floor_1a), ('ceiling', ceiling_1a)]
+             )
 
 #print(wall_0a.run_analysis())
 

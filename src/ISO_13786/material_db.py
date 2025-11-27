@@ -22,6 +22,27 @@ parkett = Material(
     specific_heat=1610,
     vapor_permeability=40.0,
 )
+leichtbauplatte_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Aussenwand, Innenwand, Decke 2
+    name="Leichtbauplatte_ME",
+    density=650,
+    thermal_conductivity=0.13,
+    specific_heat=1700,
+    vapor_permeability=30.0,
+)
+daemmung_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Aussenwand, Decke 2
+    name="Daemmung_ME",
+    density=30.0,
+    thermal_conductivity=0.041,
+    specific_heat=1030,
+    vapor_permeability=25.0,
+)
+trittschalldaemmung_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Boden
+    name="Trittschalldaemmung_ME",
+    density=48.0,
+    thermal_conductivity=0.034,
+    specific_heat=1030,
+    vapor_permeability=25.0,
+)
 gipskarton = Material(
     name="Gipskarton",
     density=1150,
@@ -64,6 +85,13 @@ unterlagsboden = Material(
     specific_heat=1100,
     vapor_permeability=20.0,
 )
+unterlagsboden_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Boden
+    name="Unterlagsboden_ME",
+    density=1850,
+    thermal_conductivity=1.2,
+    specific_heat=850,
+    vapor_permeability=15.0,
+)
 kalksandstein_md = Material(
     name="Kalksandstein mittel",
     density=1800,
@@ -84,6 +112,13 @@ testbeton = Material( # https://quickfield.com/advanced/iso_13786_2007_case_d1.h
     thermal_conductivity=1.8,
     specific_heat=1000,
     vapor_permeability=130.0,
+)
+beton_me = Material( # Validierungsfaelle_HSLU_ME-SoWS-Tool, Boden, Decke 1, Decke 2
+    name="Beton_ME",
+    density=2400,
+    thermal_conductivity=2.5,
+    specific_heat=1000,
+    vapor_permeability=150.0,
 )
 porenbeton = Material(
     name="Porenbeton",
