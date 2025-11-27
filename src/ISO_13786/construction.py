@@ -13,7 +13,9 @@ class Construction:
     """ The element 'type' is the definition of the surface type, i.e. wall,
     floor, ceiling. If Construction.partion is false, the outside surface will
     have R_se as external heat transfer resistance, otherwise R_si by type
-    according to ISO 6946
+    according to ISO 6946.
+
+    Layers are given from inside to outside.
     """
     def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
                  rel_hum_e=0.9, time=24, type='wall', partition=True):
@@ -133,10 +135,11 @@ class Construction:
         return cum_sum
 
     def thermal_resistances(self) -> np.ndarray:
-        "np.array with the thermal resistance of each Layer, with addition of the internal and external surface thermal resistance"
+        """np.array with the thermal resistance of each Layer, with addition of
+           the internal and external surface thermal resistance"""
         res = np.array([layer.thermal_resistance for layer in self.layers])
-        res = np.insert(res, 0, self.Rsi)
-        res = np.append(res, self.Rse)
+        res = np.insert(res, 0, self.Rsi)  # put Rsi as first layer
+        res = np.append(res, self.Rse)  # append Rse as last layer
 
         return res
 
@@ -410,7 +413,7 @@ class Construction:
     def construction_transfer_matrix(self, Rs=True) -> np.ndarray:
         """ Calculate construction transfer matrix, optionally include
             surface resistances.
-            Z = W_N * W_n-1 * ... * W_1  (16)
+            Z = W_N * W_N-1 * ... * W_1  (16)
         """
         zz = self.layer_transfer_matrix()
 
@@ -420,10 +423,6 @@ class Construction:
             Z = Z.dot(zz[-1 - i])  # scalar product
 
         if Rs:
-            #if self.partition:
-            #    rse = self.Rsi
-            #else:
-            #    rse = self.Rse
             # Internal heat transfer coefficient, eq. (18).
             Zsi = np.array(
                 [
@@ -442,13 +441,52 @@ class Construction:
                 dtype=np.complex128,
             )
 
-            # Eq. (17).
+            # Eq. (17)., as Z is from outside to inside, start with Z_se. (?)
             Z = Zse.dot(Z)
             Z = Z.dot(Zsi)
 
         return Z
 
-    # TODO see how to improve the -> ndarray for complex arrays
+    def internal_thermal_admittance(self) -> float:
+        "Y11 = -Z11/Z12, eq. (19)"
+        Zee = self.construction_transfer_matrix()
+
+        Y11 = -Zee[0][0] / Zee[0][1]
+        Y11 = np.sqrt((Y11.real) ** 2 + (Y11.imag) ** 2)  # the module
+
+        return Y11
+
+    def external_thermal_admittance(self, Rs=True) -> float:
+        "Y22 = -Z22/Z12, eq. (19)"
+        Zee = self.construction_transfer_matrix(Rs=Rs)
+
+        Y22 = -Zee[1][1] / Zee[0][1]
+        Y22 = np.sqrt((Y22.real) ** 2 + (Y22.imag) ** 2)  # the module
+
+        return Y22
+
+    def internal_area_heat_capacity(self, Rs=True) -> float:
+        "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K), eq. (22)"
+        Zee = self.construction_transfer_matrix(Rs=Rs)
+        kappa = ((self.time * 3600)  # time in seconds
+                  / (2 * np.pi)
+                  * np.sqrt(
+                      (((Zee[0][0] - 1) / Zee[0][1]).real) ** 2
+                      + (((Zee[0][0] - 1) / Zee[0][1]).imag) ** 2
+                  )) # J/(m2 K)
+
+        return kappa/3600 # Wh/(m2 K)
+
+    def external_area_heat_capacity(self, Rs=True) -> float:
+        "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K), eq. (23)"
+        Zee = self.construction_transfer_matrix(Rs=Rs)
+        kappa = ((self.time * 3600)  # time in seconds
+                  / (2 * np.pi)
+                  * np.sqrt(
+                      (((Zee[1][1] - 1) / Zee[0][1]).real) ** 2
+                      + (((Zee[1][1] - 1) / Zee[0][1]).imag) ** 2
+                  )) # J/(m2 K)
+        return kappa/3600  # Wh/(m2 K)
 
     def periodic_thermal_transmittance(self) -> float:
         """Y12 = -1/Z12, eq. (24)"""
@@ -477,47 +515,6 @@ class Construction:
     def phase_shift(self) -> float:
         return self.time_shift() + self.time / 2
 
-    def internal_thermal_admittance(self) -> float:
-        "Y11 = -Z11/Z12"
-        Zee = self.construction_transfer_matrix()
-
-        Y11 = -Zee[0][0] / Zee[0][1]
-        Y11 = np.sqrt((Y11.real) ** 2 + (Y11.imag) ** 2)  # the module
-
-        return Y11
-
-    def external_thermal_admittance(self, Rs=True) -> float:
-        "Y22 = -Z22/Z12"
-        Zee = self.construction_transfer_matrix(Rs=Rs)
-
-        Y22 = -Zee[1][1] / Zee[0][1]
-        Y22 = np.sqrt((Y22.real) ** 2 + (Y22.imag) ** 2)  # the module
-
-        return Y22
-
-    def internal_area_heat_capacity(self, Rs=True) -> float:
-        "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K)"
-        Zee = self.construction_transfer_matrix(Rs=Rs)
-        kappa = ((self.time * 3600)  # time in seconds
-                  / (2 * np.pi)
-                  * np.sqrt(
-                      (((Zee[0][0] - 1) / Zee[0][1]).real) ** 2
-                      + (((Zee[0][0] - 1) / Zee[0][1]).imag) ** 2
-                  )) # J/(m2 K)
-
-        return kappa/3600 # Wh/(m2 K)
-
-    def external_area_heat_capacity(self, Rs=True) -> float:
-        "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K)"
-        Zee = self.construction_transfer_matrix(Rs=Rs)
-        kappa = ((self.time * 3600)  # time in seconds
-                  / (2 * np.pi)
-                  * np.sqrt(
-                      (((Zee[1][1] - 1) / Zee[0][1]).real) ** 2
-                      + (((Zee[1][1] - 1) / Zee[0][1]).imag) ** 2
-                  )) # J/(m2 K)
-        return kappa/3600  # Wh/(m2 K)
-
     # ======== SOME COMPOUND STRUCTURE PROPERTIES ========
     def surface_mass(self) -> float:
         return np.sum(self.thicknesses() * self.densities())
@@ -531,7 +528,7 @@ class Construction:
             )
         )
 
-    def calc_effusivita_termcia(self) -> np.ndarray:
+    def thermal_effusivities(self) -> np.ndarray:
         return np.sqrt(
             self.thermal_conductivities() * self.densities() * self.specific_heats()
         )
@@ -577,6 +574,8 @@ class Construction:
         res += '\ndelta        ' + str(np.round(self.delta(), decimals=3))
         res += f'\nU_{self.time}         ' + str(np.round(self.periodic_thermal_transmittance(), decimals=2))
         if detailed:
+            res += '\na            ' + str(np.round(self.thermal_diffusivities(), decimals=3))
+            res += '\nb            ' + str(np.round(self.thermal_effusivities(), decimals=3))
             res += '\nxi           ' + str(self.xi())
             res += '\nW_i          ' + str(self.layer_transfer_matrix())
             res += '\nZ w/o Rsi/e  ' + str(self.construction_transfer_matrix(Rs=False))
