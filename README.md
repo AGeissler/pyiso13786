@@ -73,9 +73,16 @@ my_room = Space(name="my room", width=5.0, height=2.8, depth=4.0,
                                    ('floor', floor),
                                    ('ceiling', floor)],
                 depth_factor = 2.5,
+                deeper_than = 4.0,
                 glass_area_number = 0.25,
-                ceiling_split_fraction = 1.0)
+                window_frame_fraction = 0.25,
+                ceiling_split_fraction = 1.0,
+                windows_in_two_facades = False,
+                roof_space = False,
+                jamb_height = 1.0,
+                roof_tilt = 60)
 ```
+Note that 'jamb_height' and 'roof_tilt' are not used if 'roof_space' is false.
 
 Now look at some space values.
 
