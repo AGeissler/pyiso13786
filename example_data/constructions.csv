@@ -1,0 +1,9 @@
+name,layers,partition,type
+ext,"Leichtbauplatte ME, Daemmung ME",False,wall
+roof,"Leichtbauplatte ME, Daemmung ME",False,ceiling
+window,glass,False,wall
+partition,"Leichtbauplatte ME, Daemmung_Tbw, Leichtbauplatte ME",True,wall
+heavy partition,"Gipskarton, Daemmung_Tbw, Gipskarton",True,wall
+brick partition,Sichtbackstein,True,wall
+floor,"Unterlagsboden ME, Trittschalldaemmung ME, Beton ME",True,floor
+Ceiling,"",True,ceiling

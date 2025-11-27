@@ -1,0 +1,9 @@
+name,thickness,material,color
+Leichtbauplatte ME,0.01,Leichtbauplatte_ME,white
+Daemmung ME,0.26,Daemmung_ME,white
+glass,0.006,Float Glas,white
+Unterlagsboden ME,0.04,Unterlagsboden_ME,white
+Trittschalldaemmung ME,0.04,Trittschalldaemmung_ME,white
+Beton ME,0.2,Beton_ME,white
+Sichtbackstein,0.15,Sichtbackstein,brown
+Gipskarton,0.025,Gipskarton,white
