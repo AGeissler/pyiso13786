@@ -1,9 +1,0 @@
-name,density,specific_heat,thermal_conductivity,vapor_permeability
-Leichtbauplatte_ME,650,1700,0.13,30
-Daemmung_ME,30,1000,0.04,25
-Float Glas,2500,750,1.0,1000000
-Unterlagsboden_ME,1850,850,1.2,15
-Trittschalldaemmung_ME,50,1000,0.04,25
-Beton_ME,2400,1000,2.5,150
-Sichtbackstein,1400,940,0.52,8
-Gipskarton,1150,1100,0.21,5
