@@ -1,10 +1,15 @@
+"""Database class to manage material, layer, construction system and space
+   data for ISO 13796 package."""
 import os
-import importlib.metadata
 from ast import literal_eval
 from typing import List, Dict, Optional
 from pathlib import Path
 import pandas as pd
-import inspect
+
+# Local imports
+from .layer import Material, Layer
+from .construction import Construction
+from .space import Space
 
 class Database:
     """Database for ISO 13786 materials, layers, construction types and spaces
