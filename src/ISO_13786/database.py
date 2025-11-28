@@ -108,15 +108,15 @@ class Database:
         # Get all constructions from the space
         constructions = {}
         seen_construction_names = set()
-        for _, construction_obj in space.construction_list:
-            construction_key = construction_obj.name
+        for _, construction in space.construction_list:
+            construction_key = construction.name
             if construction_key not in seen_construction_names:
                 constructions[construction_key] = {
-                    'name': construction_obj.name,
-                    'layers': [f"{layer.name}" for layer in construction_obj.layers],
-                    'layer_obj': list(construction_obj.layers),
-                    'partition': construction_obj.partition,
-                    'type': construction_obj.type
+                    'name': construction.name,
+                    'layers': [f"{layer.name}" for layer in construction.layers],
+                    'layer_obj': list(construction.layers),
+                    'partition': construction.partition,
+                    'type': construction.type
                 }
                 seen_construction_names.add(construction_key)
 
@@ -179,9 +179,12 @@ class Database:
 
         return components
 
-    def write_components_to_csv(self, spaces: List[Dict[str, Dict]], data_dir: str = "data"):
+    def write_components_to_csv(self,
+                                spaces: List[Dict[str, Dict]],
+                                data_dir: str = "data"):
         """
-        Write space components to CSV files, ensuring unique entries across all spaces.
+        Write space components to CSV files, ensuring unique entries across all
+        spaces.
 
         This method basically is only for first creation of .csv files from
         existing space definitions e.g. as in SIA 180 project.
