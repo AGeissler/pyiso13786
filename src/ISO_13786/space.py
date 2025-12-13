@@ -138,12 +138,13 @@ class Space:
             print("Two windows not allowed for roof space!")
             sys.exit(9)
 
-        if self.ceiling_split_fraction >= 0.98:
+        if self.ceiling_split_fraction > 0.98:
             self.construction_list = self.construction_list[:self.min_constructions]
 
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
-        self.net_floor_area = self.width*self.depth
+        self.effective_depth = self.depth
+        self.net_floor_area = self.width*self.total_depth
 
         # Calculate total glass area.
         self.glass_area = self.glass_area_number*self.net_floor_area
@@ -160,15 +161,15 @@ class Space:
                 # roll-back from a change in 'windows_in_two_facades' (only
                 # possible for box-like space)!
                 # << Todo: make "different internal walls" possible ...(!?) >>
-                self.construction_list[east] = self.construction_list[west]
+                self.construction_list[west] = self.construction_list[east]
             # Set effective depth to be used, if less than actual depth,
             # ignore back wall entirely for subsequent calculations!
             if self.depth > self.depth_factor*self.height:
-                self.depth = self.depth_factor*self.height
+                self.effective_depth = self.depth_factor*self.height
                 self.ignore_north = True
 
         # Set effective net floor area using effective depth.
-        self.eff_net_floor_area = self.width*self.depth
+        self.eff_net_floor_area = self.width*self.effective_depth
 
         # Calculate external facade area based on mid-line dimensions used for
         # internal walls, floor and ceiling. For two windows, use external
@@ -272,9 +273,9 @@ class Space:
                 ext_wall_area = max(0, self.width*self.height - self.window_area())
                 s = np.array([ ext_wall_area,  # ext
                                self.window_area(),  # window
-                               self.depth*self.height,  # side wall
+                               self.effective_depth*self.height,  # side wall
                                back_wall_area,
-                               self.depth*self.height,  # side wall
+                               self.effective_depth*self.height,  # side wall
                                self.eff_net_floor_area  # floor
                                ])
 
@@ -285,14 +286,15 @@ class Space:
                 surface_heavy = (1 - self.ceiling_split_fraction)*c0
                 surface_light = c0 - surface_heavy
             else:
-                surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
-                surface_light = self.depth*self.width - surface_heavy
+                surface_heavy = (1 - self.ceiling_split_fraction)\
+                                               *self.effective_depth*self.width
+                surface_light = self.effective_depth*self.width - surface_heavy
             s = np.append(s, (surface_heavy, surface_light))
         else:
             if self.roof_space:
                 s = np.append(s, poly_area(self.dim_dict['ceiling']))
             else:
-                s = np.append(s, self.depth*self.width)  # ceiling
+                s = np.append(s, self.effective_depth*self.width)  # ceiling
 
         return s
 
@@ -459,7 +461,7 @@ class Space:
         """
         if self.roof_space:
             return round(poly_area(self.dim_dict['west'])*self.width, 3)
-        return self.width*self.height*self.depth
+        return self.width*self.height*self.effective_depth
 
     def properties(self):
         """Dict of (a few) space properties"""
