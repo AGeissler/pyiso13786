@@ -1,3 +1,5 @@
+"""Public package interface for ISO 13786 thermal calculations."""
+
 from .construction import Construction
 from .layer import Material, Layer
 from .space import Space

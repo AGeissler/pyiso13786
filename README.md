@@ -90,3 +90,13 @@ Now look at some space values.
 print(f"C_R/A_NGF, w/o depth limit: {room.thermal_capacity():.3f}")
 print(f"C_R/A_NGF,  w/ depth limit: {room_restricted.thermal_capacity():.3f}")
 ```
+
+## Documentation
+The project now includes a Sphinx documentation tree under [docs](docs). Build it locally with:
+
+```bash
+pip install -e .[docs]
+make -C docs html
+```
+
+The generated API reference is based on the public classes and functions exported by the package.

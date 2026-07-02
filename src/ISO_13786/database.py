@@ -12,18 +12,18 @@ from .construction import Construction
 from .space import Space
 
 class Database:
-    """Database for ISO 13786 materials, layers, construction types and spaces
-    """
+    """Database for ISO 13786 materials, layers, construction types and spaces."""
     _instance = None
 
     @classmethod
     def get_instance(cls, data_dir: Path = Path("data")):
-        """Get or create the singleton instance"""
+        """Return the shared database instance, creating it on first use."""
         if cls._instance is None:
             cls._instance = cls(data_dir)
         return cls._instance
 
     def __init__(self, data_dir: Path = Path("data")):
+        """Initialise the database from CSV data files in the given directory."""
         if self.__class__._instance is not None:
             raise RuntimeError("Database is a singleton. Use get_instance()" +
                                " instead of direct instantiation")
@@ -96,14 +96,13 @@ class Database:
                 )
 
     def deconstruct_space(self, space: Space) -> Dict[str, Dict]:
-        """
-        Deconstructs a Space object from ISO_13786 into its components.
+        """Deconstruct a space into its constituent materials, layers and constructions.
 
         Args:
-            space: A Space object from ISO_13786
+            space: A Space object from ISO_13786.
 
         Returns:
-            dict: Dictionary containing all components organized by type
+            dict: Dictionary containing all components organized by type.
         """
         # Get all constructions from the space
         constructions = {}
@@ -182,16 +181,14 @@ class Database:
     def write_components_to_csv(self,
                                 spaces: List[Dict[str, Dict]],
                                 data_dir: str = "data"):
-        """
-        Write space components to CSV files, ensuring unique entries across all
-        spaces.
+        """Write the provided space components to CSV files in a canonical form.
 
-        This method basically is only for first creation of .csv files from
-        existing space definitions e.g. as in SIA 180 project.
+        This method is mainly intended for creating the initial CSV files from
+        existing space definitions, for example in a SIA 180 project.
 
         Args:
-            spaces: List of component dictionaries from multiple spaces
-            base_dir: Base directory to save CSV files
+            spaces: List of component dictionaries from multiple spaces.
+            data_dir: Directory where the output CSV files should be written.
         """
         # Create data directory if it doesn't exist
         if not os.path.exists(data_dir):
@@ -284,14 +281,10 @@ class Database:
         constructions_df.to_csv(constructions_file, index=False)
 
     def list_spaces(self) -> pd.DataFrame:
-        """
-        List all spaces in the data directory.
-
-        Args:
-            data_dir: Directory containing the CSV files
+        """Return a dataframe containing all spaces stored in the database directory.
 
         Returns:
-            DataFrame: List of spaces with their properties
+            DataFrame: List of spaces with their properties.
         """
         spaces_file = Path(self.data_dir / 'spaces.csv')
         if not Path.exists(spaces_file):
@@ -300,14 +293,10 @@ class Database:
         return pd.read_csv(spaces_file)
 
     def get_component_usage(self) -> Dict[str, Dict]:
-        """
-        Get usage statistics for materials, layers, and constructions across all spaces.
-
-        Args:
-            data_dir: Directory containing the CSV files
+        """Return usage counts for materials, layers and constructions across all spaces.
 
         Returns:
-            dict: Usage statistics for each component type
+            dict: Usage statistics for each component type.
         """
         # Get spaces
         spaces_df = self.list_spaces()
@@ -357,18 +346,18 @@ class Database:
         return usage_stats
 
     def add_space(self, space: Space):
-        """Add a new space to the database"""
+        """Add a new space to the database and persist it."""
         if any(s.name == space.name for s in self.spaces):
             raise ValueError(f"Space with name '{space.name}' already exists")
         self.spaces[space.name] = space
         self.save_data()
 
     def get_space_by_name(self, name: str) -> Optional[Space]:
-        """Get a space by its name"""
+        """Return a space by name, or None if it is not present."""
         return next((s for s in self.spaces if s.name == name), None)
 
     def update_space(self, space: Space):
-        """Update an existing space"""
+        """Replace an existing space definition and persist the change."""
         existing = self.get_space_by_name(space.name)
         if not existing:
             raise ValueError(f"Space with name '{space.name}' not found")
@@ -378,7 +367,7 @@ class Database:
         self.save_data()
 
     def delete_space(self, name: str):
-        """Delete a space by name"""
+        """Delete a space from the database by name."""
         existing = self.get_space_by_name(name)
         if not existing:
             raise ValueError(f"Space with name '{name}' not found")
@@ -387,16 +376,15 @@ class Database:
         self.save_data()
 
     def get_construction_by_name(self,name: str) -> Optional[Dict]:
-        """Get a construction dictionary by its name and type"""
+        """Return a construction by name, if present in the database."""
         return next((c for c in self.constructions if c.name == name), None)
 
     def get_material_by_name(self, name: str) -> Optional[Dict]:
-        """Get a material dictionary by its name"""
+        """Return a material by name, if present in the database."""
         return next((m for m in self.materials if m.name == name), None)
 
     def save_data(self):
-        """Writes the current state of materials, layers, constructions, and spaces
-        back to their respective CSV files in the data_dir."""
+        """Persist the database state to CSV files."""
         # Ensure data_dir exists (it should from __init__, but good practice)
         self.data_dir.mkdir(parents=True, exist_ok=True)
 

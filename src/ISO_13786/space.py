@@ -1,14 +1,13 @@
-""" A class for a box-like space.
+"""A class for a box-like space.
 
-    Width x height (w x h + d x h) is the (internal) area of the external wall
-    (external walls) which include a window (include windows). The window area
-    is calculated as
+Width x height (w x h + d x h) is the internal area of the external wall
+(external walls) that include a window. The window area is calculated as
 
-         window_area = facade_area x window_to_wall_ratio.
+``window_area = facade_area x window_to_wall_ratio``.
 
-    where 'facade_area' refers to the facade area viewed from outside using
-    'ceiling' thickness and ignoring the optional 'ceiling_2'.
-    """
+Where ``facade_area`` refers to the facade area viewed from outside using the
+ceiling thickness and ignoring the optional ``ceiling_2``.
+"""
 
 import sys
 import math
@@ -23,19 +22,19 @@ from .utils import create_dimension_dict, poly_area, poly_side_lengths
 
 @dataclass
 class Space:
-    """ Calculate heat capacity of a box-like space featuring one or two
-    facades with a window. The glass area Ag is derived from given GAN and net
-    floor area.
-    (a) Window in one facade: Ag is inserted in external wall with dimensions
-        width x height.
-    (b) Windows in two facades: Ag/2 is inserted in each of the external walls
-        (width x height, depth x height).
+    """Calculate heat capacity of a box-like space with one or two facades.
 
-    Construction systems for space surfaces are given as a list of tuples,
-    the first element is a descriptive string for which surface the
-    construction is applied to. The strings are defined counterclockwise
-    from the external wall (assuming a south facing external wall) followed
-    by the window in the external wall:
+    The glass area $A_g$ is derived from the given glass-area number and the
+    net floor area. In the single-facade case, the glazing is inserted into the
+    external wall with dimensions width $\times$ height. In the two-facade
+    case, half of the glazing is inserted into each external wall.
+
+    Construction systems for space surfaces are provided as a list of tuples.
+    The first element identifies the surface, while the second element is an
+    instance of :class:`Construction`.
+
+    The strings are defined counterclockwise from the external wall (assuming
+    a south facing external wall) followed by the window in the external wall:
       ext, win, east, north, west, floor, ceiling [, ceiling2]
       roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
 
@@ -64,6 +63,7 @@ class Space:
     roof_tilt: float = 60
 
     def __hash__(self):
+        """Return a hash based on the space definition."""
         return hash((self.name,
                      self.width,
                      self.height,
@@ -81,6 +81,7 @@ class Space:
                      ))
 
     def __eq__(self, other):
+        """Return True when two spaces describe the same geometry and setup."""
         if not isinstance(other, Space):
             return NotImplemented
         return (

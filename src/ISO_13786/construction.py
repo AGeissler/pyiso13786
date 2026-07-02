@@ -19,6 +19,7 @@ class Construction:
     """
     def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
                  rel_hum_e=0.9, time=24, type='wall', partition=True):
+        """Initialise a construction with layers and boundary conditions."""
         self.name = name
         self.layers = layers  # list[Layer,]
         # int, i = internal, ext, e = external :
@@ -34,6 +35,7 @@ class Construction:
                                                            self.type)
 
     def __hash__(self):
+        """Return a hash based on the construction definition."""
         return hash((self.name,
                      tuple(self.layers),
                      self.temp_int,
@@ -46,6 +48,7 @@ class Construction:
                      self.partition))
 
     def __eq__(self, other):
+        """Return True when two constructions describe the same assembly."""
         if not isinstance(other, Construction):
             return NotImplemented
         return (
@@ -466,7 +469,10 @@ class Construction:
         return Y22
 
     def internal_area_heat_capacity(self, Rs=True) -> float:
-        "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K), eq. (22)"
+        """Return the internal area heat capacity $k_1$.
+        $k_1 = \frac{t}{2\pi} \sqrt{\left(\frac{Z_{11}-1}{Z_{12}}\right)^2}$, eq. (20)
+        orig: k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K), eq. (22)
+        """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
@@ -478,7 +484,10 @@ class Construction:
         return kappa/3600 # Wh/(m2 K)
 
     def external_area_heat_capacity(self, Rs=True) -> float:
-        "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K), eq. (23)"
+        """Return the external area heat capacity $k_2$.
+        $k_2 = \frac{t}{2\pi} \sqrt{\left(\frac{Z_{22}-1}{Z_{12}}\right)^2}$, eq. (21)
+        orig: k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K), eq. (23)
+        """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
@@ -497,7 +506,9 @@ class Construction:
         return Y12
 
     def decrement_factor(self) -> float:
-        """f = |Y12|/U0, eq. (25)"""
+        """Return the decrement factor using the periodic thermal transmittance and overall transmittance.
+        f = |Y12| / U, eq. (25)
+        """
         return (
             self.periodic_thermal_transmittance() /
                                     self.thermal_transmittance()
