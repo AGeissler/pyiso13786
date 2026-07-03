@@ -4,7 +4,7 @@ Thermal Capacity of a Room
 
 .. topic:: Calculate the thermal capacity of a room
 
-   * Define materials
+   * Define layers based on available materials
 
    * Define a space
 
@@ -14,17 +14,15 @@ Thermal Capacity of a Room
 
 """
 # Import
-import matplotlib.pyplot as plt
-#plt.style.use(["science", "retro", "no-latex"])
-
 import pandas as pd
 
 # Local imports
-from ISO_13786.utils import plot_bar_chart_comparison
 from ISO_13786 import Material, Layer, Construction, Space
 from ISO_13786 import material_db as mat
 
-
+# %%
+# Define necessary layers using available materials from
+# :class:`ISO_13786.material_db.MaterialDataBase`.
 fassade = Layer(
     name="Fassade",
     thickness=0.008,
@@ -71,7 +69,8 @@ porenbeton = Layer(
     material=mat.porenbeton
 )
 
-# Set up construction systems, layers inside-to-outside.
+# %%
+# Define required construction systems, layers are given inside-to-outside.
 window = Construction(name="window", layers=[fassade])
 wall_0a = Construction(name="0a", layers=[testbeton])
 wall_1a = Construction(name="1a", layers=[fassade])
@@ -83,7 +82,8 @@ floor_1a = Construction(name="floor", layers=[gipsputz, stahlbeton, gipsputz],
                         type="floor")
 ceiling_1a = Construction(name="ceiling", layers=[gipsputz, stahlbeton, gipsputz],
                           type="ceiling")
-
+# %%
+# Define two rooms using :class:`ISO_13786.space.Space`.
 room = Space(name="room", width=6.5, height=2.6, depth=8.5,
              construction_list=[('ext', wall_1a), ('win', window), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
@@ -96,16 +96,7 @@ room_restricted = Space(name="room_restricted", width=6.5, height=2.6, depth=8.5
                                 ('floor', floor_1a), ('ceiling', ceiling_1a)]
              )
 
-#print(wall_0a.run_analysis())
-
-#print(wall_3c.periodic_thermal_transmittance())
-#print(wall_3c.thermal_diffusivities())
-#print(wall_0a.create_dict_valuable_properties())
-#print(wall_3c.create_dict_valuable_properties())
-#print(wall_3d.create_dict_valuable_properties())
-
+# %%
+# Evaluate thermal capacity of the two rooms.
 print(f"C_R/A_NGF, ohne Begrenzung: {room.thermal_capacity():.3f} Wh/(m2 K)")
 print(f"C_R/A_NGF,  mit Begrenzung: {room_restricted.thermal_capacity():.3f} Wh/(m2 K)")
-
-#plot_bar_chart_comparison([wall_3c, wall_3d], latex=True)
-#plt.show()

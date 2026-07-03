@@ -3,7 +3,7 @@
 Construction
 ============
 
-This module contains ...
+This module contains :class:`~ISO_13786.construction.Construction`.
 
 .. currentmodule:: iso-13786
 

@@ -3,7 +3,7 @@
 Space
 =====
 
-This module contains :class:`~iso-13786:space:Space`.
+This module contains :class:`~ISO_13786.space.Space`.
 
 .. currentmodule:: iso-13786
 
