@@ -1,8 +1,8 @@
 # Minimal makefile for Sphinx documentation
-
+SPHINXOPTS  ?=
 SPHINXBUILD ?= sphinx-build
-SOURCEDIR = source
-BUILDDIR = build
+SOURCEDIR    = .
+BUILDDIR     = _build
 
 .PHONY: help html clean
 

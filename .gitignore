@@ -1,3 +1,4 @@
-/docs/build
+/docs/_build
+/docs/examples
 /build
 *.egg-info

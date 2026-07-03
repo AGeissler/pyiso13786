@@ -1,3 +1,18 @@
+r"""
+Thermal Capacity of a Room
+--------------------------
+
+.. topic:: Calculate the thermal capacity of a room
+
+   * Define materials
+
+   * Define a space
+
+   * Evaluate thermal capacity
+
+(tbc)
+
+"""
 # Import
 import matplotlib.pyplot as plt
 #plt.style.use(["science", "retro", "no-latex"])
@@ -5,9 +20,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Local imports
-from thermo_hygrometric.utils import plot_bar_chart_comparison
-from thermo_hygrometric import Material, Layer, Construction, Space
-import material_db as mat
+from ISO_13786.utils import plot_bar_chart_comparison
+from ISO_13786 import Material, Layer, Construction, Space
+from ISO_13786 import material_db as mat
 
 
 fassade = Layer(
@@ -57,23 +72,26 @@ porenbeton = Layer(
 )
 
 # Set up construction systems, layers inside-to-outside.
+window = Construction(name="window", layers=[fassade])
 wall_0a = Construction(name="0a", layers=[testbeton])
 wall_1a = Construction(name="1a", layers=[fassade])
 wall_1b = Construction(name="1b", layers=[gipsputz, kalksandstein, gipsputz])
 wall_3c = Construction(name="3c", layers=[gipsputz, stahlbeton, daemmung190, gipsputz])
 wall_3d = Construction(name="3d", layers=[gipsputz, porenbeton, daemmung190, gipsputz])
 
-floor_1a = Construction(name="floor", layers=[gipsputz, stahlbeton, gipsputz])
-ceiling_1a = Construction(name="ceiling", layers=[gipsputz, stahlbeton, gipsputz])
+floor_1a = Construction(name="floor", layers=[gipsputz, stahlbeton, gipsputz],
+                        type="floor")
+ceiling_1a = Construction(name="ceiling", layers=[gipsputz, stahlbeton, gipsputz],
+                          type="ceiling")
 
-room = Space(name="firstspace", width=6.5, height=2.6, depth=8.5,
-             construction_list=[('ext', wall_1a), ('east', wall_1b), 
+room = Space(name="room", width=6.5, height=2.6, depth=8.5,
+             construction_list=[('ext', wall_1a), ('win', window), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
                                 ('floor', floor_1a), ('ceiling', ceiling_1a)],
              depth_factor = 5.0)
 
-room_restricted = Space(name="firstspace", width=6.5, height=2.6, depth=8.5,
-             construction_list=[('ext', wall_1a), ('east', wall_1b), 
+room_restricted = Space(name="room_restricted", width=6.5, height=2.6, depth=8.5,
+             construction_list=[('ext', wall_1a), ('win', window), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
                                 ('floor', floor_1a), ('ceiling', ceiling_1a)]
              )
