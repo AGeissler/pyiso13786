@@ -10,12 +10,15 @@ from typing import Optional
 
 @dataclass
 class Construction:
-    """ The element 'type' is the definition of the surface type, i.e. wall,
+    r""" The element 'type' is the definition of the surface type, i.e. wall,
     floor, ceiling. If Construction.partion is false, the outside surface will
-    have R_se as external heat transfer resistance, otherwise R_si by type
-    according to ISO 6946.
+    have :math:`R_{se}` as external heat transfer resistance, otherwise 
+    :math:`R_{se}\,=\,R_{si}` by type according to ISO 6946.
 
     Layers are given from inside to outside.
+    
+    Equation numbers following equations refer to the number found in ISO 13786.
+
     """
     def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
                  rel_hum_e=0.9, time=24, type='wall', partition=True):
@@ -469,9 +472,15 @@ class Construction:
         return Y22
 
     def internal_area_heat_capacity(self, Rs=True) -> float:
-        """Return the internal area heat capacity $k_1$.
-        $k_1 = \frac{t}{2\pi} \sqrt{\left(\frac{Z_{11}-1}{Z_{12}}\right)^2}$, eq. (20)
-        orig: k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K), eq. (22)
+        r"""Return the internal area heat capacity :math:`k_1` in
+        :math:`\text{Wh/(m}^{2 }\text{K)}` calculated according to eqn. :eq:`eq. (22)`.
+
+        .. math:: 
+           :label: eq. (22)
+
+           k_1 &= \frac{1}{\omega}\left|\frac{(Z_{11}-1)}{Z_{12}}\right|\qquad\text{ eq. (22)} \\
+               &= \frac{t}{2\pi} \sqrt{\left(\frac{Z_{11}-1}{Z_{12}}\right)^2}
+
         """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
@@ -484,9 +493,15 @@ class Construction:
         return kappa/3600 # Wh/(m2 K)
 
     def external_area_heat_capacity(self, Rs=True) -> float:
-        """Return the external area heat capacity $k_2$.
-        $k_2 = \frac{t}{2\pi} \sqrt{\left(\frac{Z_{22}-1}{Z_{12}}\right)^2}$, eq. (21)
-        orig: k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K), eq. (23)
+        r"""Return the external area heat capacity :math:`k_2` in 
+        :math:`\text{Wh/(m}^{2 }\text{K)}` calculated according to eqn. :eq:`eq. (21)`.
+
+        .. math::
+           :label: eq. (21)
+
+           k_2 &= \frac{1}{\omega}\left|\frac{(Z_{22}-1)}{Z_{12}}\right|\qquad\text{ eq. (23)} \\
+               &= \frac{t}{2\pi} \sqrt{\left(\frac{Z_{22}-1}{Z_{12}}\right)^2}
+
         """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
@@ -498,7 +513,15 @@ class Construction:
         return kappa/3600  # Wh/(m2 K)
 
     def periodic_thermal_transmittance(self) -> float:
-        """Y12 = -1/Z12, eq. (24)"""
+        r"""Return the periodic thermal transmittance calculated acc. to eqn.
+        :eq:`eq. (24)`.
+
+        .. math::
+           :label: eq. (24)
+
+           Y_{12} = -\frac{1}{Z_{12}}\qquad\text{ eq. (24)}
+
+        """
         Y12 = -1 / self.construction_transfer_matrix()[0][1]
         # Modulus (absolute value) |Y12|.
         Y12 = np.sqrt((Y12.real) ** 2 + (Y12.imag) ** 2)
@@ -506,8 +529,14 @@ class Construction:
         return Y12
 
     def decrement_factor(self) -> float:
-        """Return the decrement factor using the periodic thermal transmittance and overall transmittance.
-        f = |Y12| / U, eq. (25)
+        r"""Return the decrement factor using the periodic thermal transmittance 
+        and overall transmittance acc. to eqn. :eq:`eq. (25)`.
+
+        .. math::
+           :label: eq. (25)
+
+           f = \frac{\left|Y_{12}\right|}{U}\qquad\text{ eq. (25)}
+
         """
         return (
             self.periodic_thermal_transmittance() /

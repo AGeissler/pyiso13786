@@ -34,7 +34,8 @@ class Space:
     instance of :class:`Construction`.
 
     The strings are defined counterclockwise from the external wall (assuming
-    a south facing external wall) followed by the window in the external wall:
+    a south facing external wall) followed by the window in the external wall: ::
+
       ext, win, east, north, west, floor, ceiling [, ceiling2]
       roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
 

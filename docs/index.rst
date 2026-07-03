@@ -7,7 +7,7 @@ procedures of ISO 13786:2017.
 .. grid::
 
    .. grid-item-card:: ☎ How-To
-      :link: howto
+      :link: how-to
       :link-type: ref
 
       Getting started.
