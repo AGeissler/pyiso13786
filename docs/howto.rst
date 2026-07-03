@@ -44,5 +44,5 @@ You can compare several constructions in a single chart:
 Working with spaces
 -------------------
 
-Use the :class:`ISO_13786.Space` class to calculate room-level properties such as
+Use the :class:`ISO_13786.space.Space` class to calculate room-level properties such as
 thermal capacity and glazing ratios.
