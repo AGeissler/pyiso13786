@@ -96,13 +96,17 @@ class Database:
                 )
 
     def deconstruct_space(self, space: Space) -> Dict[str, Dict]:
-        """Deconstruct a space into its constituent materials, layers and constructions.
+        r"""Deconstruct a space into its constituent materials, layers and constructions.
 
-        Args:
-            space: A Space object from ISO_13786.
+        Parameters
+        ----------
+        space : Space
+            A Space object from ISO_13786.
 
-        Returns:
-            dict: Dictionary containing all components organized by type.
+        Returns
+        -------
+        dict : Dictionary containing all components organized by type.
+
         """
         # Get all constructions from the space
         constructions = {}
@@ -181,14 +185,18 @@ class Database:
     def write_components_to_csv(self,
                                 spaces: List[Dict[str, Dict]],
                                 data_dir: str = "data"):
-        """Write the provided space components to CSV files in a canonical form.
+        r"""Write the provided space components to CSV files in a canonical form.
 
         This method is mainly intended for creating the initial CSV files from
         existing space definitions, for example in a SIA 180 project.
 
-        Args:
-            spaces: List of component dictionaries from multiple spaces.
-            data_dir: Directory where the output CSV files should be written.
+        Parameters
+        ----------
+        spaces : list
+            List of component dictionaries from multiple spaces.
+        data_dir: str (optional, default: "data")
+            Directory where the output CSV files should be written.
+
         """
         # Create data directory if it doesn't exist
         if not os.path.exists(data_dir):
@@ -283,8 +291,10 @@ class Database:
     def list_spaces(self) -> pd.DataFrame:
         """Return a dataframe containing all spaces stored in the database directory.
 
-        Returns:
-            DataFrame: List of spaces with their properties.
+        Returns
+        -------
+        DataFrame of spaces with their properties.
+
         """
         spaces_file = Path(self.data_dir / 'spaces.csv')
         if not Path.exists(spaces_file):
@@ -295,8 +305,10 @@ class Database:
     def get_component_usage(self) -> Dict[str, Dict]:
         """Return usage counts for materials, layers and constructions across all spaces.
 
-        Returns:
-            dict: Usage statistics for each component type.
+        Returns
+        -------
+        dict of usage statistics for each component type.
+
         """
         # Get spaces
         spaces_df = self.list_spaces()
@@ -375,7 +387,7 @@ class Database:
         del self.spaces[name]
         self.save_data()
 
-    def get_construction_by_name(self,name: str) -> Optional[Dict]:
+    def get_construction_by_name(self, name: str) -> Optional[Dict]:
         """Return a construction by name, if present in the database."""
         return next((c for c in self.constructions if c.name == name), None)
 

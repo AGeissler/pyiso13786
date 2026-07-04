@@ -5,7 +5,34 @@ from typing import Optional
 
 @dataclass
 class Material:
-    """Thermal and hygric properties of a homogeneous material."""
+    r"""Thermal and hygric properties of a homogeneous material.
+
+    Parameters
+    ----------
+    name : str
+        Name of the material.
+    thermal_conductivity : float
+        Thermal conductivity :math:`\lambda` in (W/(m K)).
+    vapor_permeability : float
+        (Relative) Vapor permeability :math:`\mu` (-).
+    density : float
+        Bulk density :math:`\rho` in (kg/m3).
+    specific_heat : float
+        Specific heat :math:`c_p` in (J/(kg K)).
+
+    Notes
+    -----
+    The vapor permeability parameter here is defined according to eqn.
+    :eq:`vapor_permeability`, i.e. as the relative vapor permeability of air as compared
+    to the material of interest (:math:`\mu`-value). The values for :math:`\delta` are
+    typically given in (kg/(Pa m s)).
+
+    .. math::
+       :label: vapor_permeability
+
+       \mu\,=\,\frac{\delta_\text{air}}{\delta_\text{material}}
+
+    """
 
     name: str
     thermal_conductivity: float  # lambda, W/(m K)
@@ -45,7 +72,20 @@ class Material:
 
 @dataclass
 class Layer:
-    """A single layer in a construction assembly."""
+    r"""A material layer with specific thickness to be used in a construction assembly.
+
+    Parameters
+    ----------
+    name : str
+        Name of the layer.
+    thickness : float
+        Thickness (strength) of the layer in (m).
+    material : Material
+        Layer material.
+    color : str (optional, default: "white")
+        Color of the layer.
+
+    """
 
     name: str
     thickness: float  # in meters
@@ -90,12 +130,30 @@ class Layer:
 
     @property
     def equivalent_thickness(self):
-        """Return the equivalent diffusion air layer thickness $s_d$ in metres."""
+        r"""Return the equivalent diffusion air layer thickness :math:`s_d`.
+
+        Notes
+        -----
+        :math:`s_d\,=\,\mu\,s` in (m).
+
+        """
         return self.thickness * self.vapor_permeability
 
     @property
     def thermal_resistance(self):
-        """Return the thermal resistance of the layer in metres squared kelvin per watt."""
+        r"""Return the thermal resistance of the layer.
+
+        Notes
+        -----
+        Thermal resistance of a layer is defined according to eqn.
+        :eq:`thermal_resistance`.
+
+        .. math::
+           :label: thermal_resistance
+
+           R\,=\,\frac{s}{\lambda}\qquad\text{ in (m^2 K/W)}
+
+        """
         return self.thickness / self.thermal_conductivity
 
     def properties(self):

@@ -10,18 +10,51 @@ from typing import Optional
 
 @dataclass
 class Construction:
-    r""" The element 'type' is the definition of the surface type, i.e. wall,
-    floor, ceiling. If Construction.partion is false, the outside surface will
-    have :math:`R_{se}` as external heat transfer resistance, otherwise 
-    :math:`R_{se}\,=\,R_{si}` by type according to ISO 6946.
+    r"""A construction based on one or more material layers of given thickness.
+
+    Parameters
+    ----------
+    name : str
+        Name of the construction.
+    layers : list
+        List of layers.
+    type : str (optional, default: 'wall')
+        Construction type, one of 'wall', 'floor', 'ceiling'.
+    partition : bool (optional, default: True)
+        Toggle for construction boundary conditions, i.e. a partition is *not* external.
+    temp_int : float (optional, default: 20)
+        Internal boundary (air) temperature in (°C).
+    temp_ext : float (optional, default: -5)
+        External boundary (air) temperature in (°C).
+    rel_hum_i : float (optional, default: 0.65)
+        Relative humidity of internal air in (-).
+    rel_hum_e : float (optional, default: 0.9)
+        Relative humidity of external air in (-).
+    time : int (optional, default: 24)
+        Period length of attenuation in (h).
+
+    Notes
+    -----
+    The element 'type' is the definition of the surface type, i.e. wall, floor, ceiling.
+    If Construction.partion is `False`, the outside surface will have :math:`R_{se}` as
+    external heat transfer resistance, otherwise :math:`R_{se}\,=\,R_{si}` by 'type'
+    according to ISO 6946 [1]_.
 
     Layers are given from inside to outside.
     
     Equation numbers following equations refer to the number found in ISO 13786.
 
+    References
+    ----------
+    ..  [1] EN ISO 6946 (SIA 180.071), Building components and building elements
+            - Thermal resistance and thermal transmittance - Calculation method
+            (ISO 6946:2017), CEN - European Committee for Standardization, 2017.
+
+
     """
-    def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
-                 rel_hum_e=0.9, time=24, type='wall', partition=True):
+
+    def __init__(self, name, layers, type='wall', partition=True,
+                 temp_int=20, temp_ext=-5, rel_hum_i=0.65, rel_hum_e=0.9, time=24):
         """Initialise a construction with layers and boundary conditions."""
         self.name = name
         self.layers = layers  # list[Layer,]

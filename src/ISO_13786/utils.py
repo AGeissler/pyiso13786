@@ -6,7 +6,16 @@ import matplotlib.pyplot as plt
 
 def plot_bar_chart_comparison(structures: list[Construction],
                                latex: bool = False) -> plt.Axes:
-    """Create a bar-chart comparison for a collection of constructions."""
+    r"""Create a bar-chart comparison for a collection of construction systems.
+
+    Parameters
+    ----------
+    structures : list
+        List of constructions systems to compare in bar chart.
+    latex : bool (optional, default: False)
+        Toggle for LaTex formatting of labels.
+
+    """
     names = [struct.name for struct in structures]
     data = [struct.create_dict_valuable_properties() for struct in structures]
 
@@ -35,23 +44,23 @@ def plot_bar_chart_comparison(structures: list[Construction],
 
     if latex:
         custom_labels = [
-            "$d_{tot}$ [m]",
-            "R [m$^2$ K W$^{-1}$]",
-            "m' [$\\times10^2$ kg m$^{-2}$]",
-            "$|Y_{12}|$ [$\\times10^{-2}$ W m$^{-2}$ K$^{-1}$]",
-            "$\\varphi$ [h]",
-            "f [$\\times10^{-1}$]",
-            "$\\kappa_1$ [$\\times10^{1}$ kJ m$^{-2}$ K$^{-1}$]",
+            "$d_{tot}$ (m)",
+            "R (m$^2$ K W$^{-1}$)",
+            "m' ($\\times10^2$ kg m$^{-2}$)",
+            "$|Y_{12}|$ ($\\times10^{-2}$ W m$^{-2}$ K$^{-1}$)",
+            "$\\varphi$ (h)",
+            "f ($\\times10^{-1}$)",
+            "$\\kappa_1$ ($\\times10^{1}$ kJ m$^{-2}$ K$^{-1}$)",
         ]
     else:
         custom_labels = [
-            "d_tot [m]",
-            "R [m2 K W-1]",
-            "m' [100 * kg m-1]",
-            "|Y12| [0.01 *  W m-2 K-1]",
-            "phi [h]",
-            "f [* 0.1]",
-            "k1 [10 * kJ m-2 K-1]",
+            "d_tot (m)",
+            "R (m2 K W-1)",
+            "m' (100 * kg m-1)",
+            "|Y12| (0.01 *  W m-2 K-1)",
+            "phi (h)",
+            "f (* 0.1)",
+            "k1 (10 * kJ m-2 K-1)",
         ]
     ax.legend(loc="upper center", labels=custom_labels, frameon=True, ncol=2)
 
@@ -107,7 +116,36 @@ def poly_side_lengths(poly):
 
 
 def create_dimension_dict(w_, d_, h_, h2_, tilt, gan):
-    """Create a geometry dictionary for roof-space type space instances."""
+    r"""Create a geometry dictionary for roof-space type space instances.
+
+    Parameters
+    ----------
+    w_ : float
+        Width of roof space.
+    d_ : float
+        Depth of roof space.
+    h_ : float
+        Height of roof space.
+    h2_ : float
+        Height of the jamb wall, i.e. height of roof space where the roof meets the
+        external wall.
+    tilt : float
+        Roof tilt angle from the horizontal in (°).
+    gan : float
+        Glass area number in (-), see eqn. :eq:`gan`.
+
+    Notes
+    -----
+    The glass area number 'GAN' is calculated according to eqn. :eq:`gan` where 'NFA'
+    is the net floor area, i.e. the floor area of the roof space based on internal net
+    dimensions.
+
+    .. math::
+       :label: gan
+
+       \text{GAN}\,=\,\frac{A_\text{glass}}{\text{NFA}}
+
+    """
     d2_ = d2_fun(tilt, h_, h2_, d_)
 
     dims = {
@@ -126,7 +164,31 @@ def create_dimension_dict(w_, d_, h_, h2_, tilt, gan):
 
 
 def d2_fun(a, h, h2, d, rnd=8):
-    """Calculate the y-value for a tilted roof-to-ceiling junction."""
+    r"""Calculate the y-coordinate for the junction between a sloped roof and ceiling.
+
+    This function computes the position where a sloped roof meets the ceiling, based on
+    the tilt angle, the total height, the jamb wall height, and the depth of the space.
+    The calculation is rounded to the specified number of decimal places.
+
+    Parameters
+    ----------
+    a : float
+        The roof tilt angle from the horizontal, in degrees.
+    h : float
+        The total height of the roof space.
+    h2 : float
+        The height of the jamb wall (vertical wall under the roof).
+    d : float
+        The depth of the roof space.
+    rnd : int (optional, default: 8
+        The number of decimal places to use for rounding.
+
+    Returns
+    -------
+    The y-coordinate (depth) of the intersection point, rounded to the specified
+    precision.
+
+    """
     l = (h - h2) / round(np.cos(np.deg2rad(a)), rnd)
     return round(d - l * round(np.sin(np.deg2rad(a)), rnd), rnd)
 
