@@ -38,17 +38,20 @@ class Construction:
     The element 'type' is the definition of the surface type, i.e. wall, floor, ceiling.
     If Construction.partion is `False`, the outside surface will have :math:`R_{se}` as
     external heat transfer resistance, otherwise :math:`R_{se}\,=\,R_{si}` by 'type'
-    according to ISO 6946 [1]_.
+    according to ISO 6946 [ISO6946]_.
 
     Layers are given from inside to outside.
     
-    Equation numbers following equations refer to the number found in ISO 13786.
+    Equation numbers following equations refer to the number found in ISO 13786 [ISO13786]_.
 
     References
     ----------
-    ..  [1] EN ISO 6946 (SIA 180.071), Building components and building elements
+    ..  [ISO6946] EN ISO 6946 (SIA 180.071), Building components and building elements
             - Thermal resistance and thermal transmittance - Calculation method
             (ISO 6946:2017), CEN - European Committee for Standardization, 2017.
+    ..  [ISO13786] EN ISO 13786 (SIA 180.073), Thermal performance of building components
+            - Dynamic thermal characteristics - Calculation methods (ISO 13786:2017),
+            CEN - European Committee for Standardization, 2017.
 
 
     """
@@ -102,6 +105,7 @@ class Construction:
 
     @staticmethod
     def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        """Compare two floating-point values with a small tolerance."""
         # Handle cases where either or both are None
         if a is None or b is None:
             return a == b
@@ -110,9 +114,12 @@ class Construction:
 
     @staticmethod
     def heat_transfer_resistance(partition, type):
-        """ Return internal and external heat transfer resistance according to
-            ISO 6946 depending on construction usage (partition and one of
-            wall, floor, ceiling). """
+        r"""Return internal and external heat transfer resistance
+
+        The resistance is chosen according to ISO 6946 [ISO6946]_ depending on construction
+        usage (partition and one of wall, floor, ceiling).
+
+        """
         if partition is True:
             # We have an internal construction.
             if type == 'wall':

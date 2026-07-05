@@ -22,32 +22,66 @@ from .utils import create_dimension_dict, poly_area, poly_side_lengths
 
 @dataclass
 class Space:
-    """Calculate heat capacity of a box-like space with one or two facades.
+    r"""Calculate heat capacity of a box-like space with one or two external facades.
 
-    The glass area $A_g$ is derived from the given glass-area number and the
-    net floor area. In the single-facade case, the glazing is inserted into the
-    external wall with dimensions width $\times$ height. In the two-facade
-    case, half of the glazing is inserted into each external wall.
+    Parameters
+    ----------
+    name : str
+        Name of the space.
+    width : float
+        Internal width of the space in (m).
+    height : float
+        Internal height of the space in (m).
+    depth : float
+        Internal depth of the space in (m).
+    construction_list : list[(str, Construction)]
+        List of tuples (space_surface_name, Construction) of construction systems used.
+    depth_factor : float (optional, default: 2.5)
+        Factor ... (-).
+    deeper_than : float (optional, default: 4.0)
+        Depth of space from external facade for which daylight is assumed in (m).
+    glass_area_number : float (optional, default: 0.54)
+        Glass area number for space (-).
+    window_frame_fraction : float (optional, default: 0.25)
+        Frame fraction of window(s), (-).
+    ceiling_split_fraction : float (optional, default: 1.0)
+        Fraction of split between construction systems 'ceiling' and 'ceiling_2' (-)
+    windows_in_two_facades : bool (optional, default: False)
+        Toggle for defining a space as having two windows.
+    roof_space : bool (optional, default: False)
+        Toggle for defining a space as 'roof space'.
+    jamb_height : float (optional, default: 0.0)
+        Height of jamb wall, used only if roof_space == True.
+    roof_tilt : float (optional, default: 60)
+        Tilt of sloped roof measured from the horizontal, (°).
 
-    Construction systems for space surfaces are provided as a list of tuples.
-    The first element identifies the surface, while the second element is an
-    instance of :class:`Construction`.
+    Notes
+    -----
+    Construction systems for space surfaces are provided as a list of tuples. The first
+    tuple element identifies the space surface, while the second element is an instance
+    of :class:`Construction`.
 
-    The strings are defined counterclockwise from the external wall (assuming
-    a south facing external wall) followed by the window in the external wall: ::
+    The space surface strings are defined counterclockwise from the external wall
+    (assuming a south facing external wall) followed by the window in the external
+    wall: ::
 
       ext, win, east, north, west, floor, ceiling [, ceiling2]
       roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
 
-    The second tuple element is an instance of class 'Construction'.
+    The glass area :math:`A_g` is derived from the given glass-area number and the net
+    floor area. In the single-facade case, the glass area is inserted into the external
+    wall which has the dimensions width :math:`\times` height. 
 
-    If two windows are present (windows_in_two_facades == True), the
-    construction system for 'west' is set to 'ext'.
+    If two windows are present (windows_in_two_facades == True), the construction system
+    for 'west' is set to that of 'ext'. Half of the glass area is inserted into each
+    external wall.
 
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
     of the total ceiling area and is assumed to be located away from the
     external facade(s) / the roof.
+
     """
+
     name: str
     width: float
     height: float
@@ -82,7 +116,8 @@ class Space:
                      ))
 
     def __eq__(self, other):
-        """Return True when two spaces describe the same geometry and setup."""
+        """Return True when 'other' describes the same geometry and setup as 'self'.
+        """
         if not isinstance(other, Space):
             return NotImplemented
         return (
@@ -107,6 +142,7 @@ class Space:
 
     @staticmethod
     def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        """Compare two floating-point values with a small tolerance."""
         # Handle cases where either or both are None
         if a is None or b is None:
             return a == b
@@ -436,12 +472,13 @@ class Space:
         return o_width, o_height, opening_area
 
     def net_deep_area(self) -> float:
-        """ Calculate the net area of the space which lies more than
-            'deeper_than' away from the facade. Valid only for a window in one
-            facade!
+        r""" Calculate the net area of the space which lies more than 'deeper_than' away
+        from the facade. Valid only for a window in one facade!
 
-            This area is used for the calculation of internal lighting
-            loads.
+        Notes
+        -----
+        The calculated area is used for the calculation of internal lighting loads.
+
         """
         if self.windows_in_two_facades is False:
             if self.total_depth > self.deeper_than:
@@ -449,7 +486,8 @@ class Space:
         return 0
 
     def thermal_capacity(self, Rs=True) -> float:
-        """ Space internal heat capacity per net floor area in Wh/(m2 K).
+        r"""Space internal heat capacity per net floor area in Wh/(m2 K) based
+        on calculations according to ISO 13786 [ISO13786]_.
         """
         cr = 0
         area = self.surface_areas()
@@ -581,7 +619,7 @@ class Space:
         return res
 
     def dict_of_properties(self) -> dict:
-        """Create dict of space properties.
+        """Return dict of space properties.
         """
         if self.roof_space:
             ext_key = 'A_R'
