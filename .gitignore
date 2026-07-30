@@ -1,4 +1,6 @@
 /docs/_build
 /docs/examples
+*sg_execution_times.rst
 /build
+*__pycache__
 *.egg-info

@@ -151,7 +151,7 @@ class Layer:
         .. math::
            :label: thermal_resistance
 
-           R\,=\,\frac{s}{\lambda}\qquad\text{ in (m^2 K/W)}
+           R\,=\,\frac{s}{\lambda}\qquad\text{ in} (m^2 K/W)
 
         """
         return self.thickness / self.thermal_conductivity

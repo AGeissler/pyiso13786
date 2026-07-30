@@ -60,10 +60,15 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_gallery.gen_gallery",
+    "code_include.extension",
     "myst_parser",
     "matplotlib.sphinxext.plot_directive",
     "pyvista.ext.plot_directive",
     "pyvista.ext.viewer_directive",
+]
+myst_enable_extensions = [
+    "deflist",
+    "smartquotes",
 ]
 source_suffix = {
     ".rst": "restructuredtext",
