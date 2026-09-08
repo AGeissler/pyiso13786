@@ -114,10 +114,20 @@ class Construction:
 
     @staticmethod
     def heat_transfer_resistance(partition, type):
-        r"""Return internal and external heat transfer resistance
+        r"""Return internal and external heat transfer resistance chosen according to
+        ISO 6946 [ISO6946]_ depending on construction situation and type.
 
-        The resistance is chosen according to ISO 6946 [ISO6946]_ depending on construction
-        usage (partition and one of wall, floor, ceiling).
+        Parameters
+        ----------
+        partition : bool
+            Toggle for construction boundary situation.
+        type : str
+            Construction type, one of 'wall', 'floor', 'ceiling'.
+
+        Returns
+        -------
+        R_si, R_se : float
+            Internal, external heat transfer resistance in :math:`m^2 W/K`.
 
         """
         if partition is True:
@@ -181,8 +191,8 @@ class Construction:
         return cum_sum
 
     def thermal_resistances(self) -> np.ndarray:
-        """np.array with the thermal resistance of each Layer, with addition of
-           the internal and external surface thermal resistance"""
+        """Thermal resistance of each layer, with addition of the internal and external
+        surface heat transfer resistance"""
         res = np.array([layer.thermal_resistance for layer in self.layers])
         res = np.insert(res, 0, self.Rsi)  # put Rsi as first layer
         res = np.append(res, self.Rse)  # append Rse as last layer
@@ -190,19 +200,30 @@ class Construction:
         return res
 
     def thermal_resistance_tot(self) -> float:
-        "sum of the thermal resistances. Starting from the surface internal' one"
+        r"""Total sum of the thermal resistances of all layers including internal and
+        external heat transfer.
+
+        :math:`R_{tot} = \sum{R_i}\text{  in }\frac{m^2 K}{W}`
+
+        """
         return np.sum(self.thermal_resistances())
 
     def thermal_resistance_cumsum(self) -> np.ndarray:
-        "cumulative sum of the thermal resistances"
+        r"""Cumulative sum of the thermal resistances up to each layer.
+        """
         cum_sum = np.cumsum(self.thermal_resistances(), dtype=float)
         return cum_sum
 
     def thermal_transmittance(self) -> float:
-        "U = 1/R_tot"
+        r"""Thermal transmittance value.
+        
+        :math:`U = \frac{1}{R_{tot}\text{  in }\frac{W}{m^2 K}}`
+
+        """
         return 1 / self.thermal_resistance_tot()
 
     def surface_temperatures(self) -> np.ndarray:
+        """Array of layer surface temperatures."""
         delta_temp = self.temp_int - self.temp_ext
         temp = self.temp_int - (
             (self.thermal_resistance_cumsum() * delta_temp)
