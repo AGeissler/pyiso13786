@@ -137,12 +137,12 @@ class Construction:
             elif type == 'ceiling':
                 return 0.10, 0.17
             return 0.17, 0.10
-        else:  # We have an external construction.
-            if type == 'wall':
-                return 0.13, 0.04
-            elif type == 'ceiling':  # actually 'roof'
-                return 0.10, 0.04
-            return 0.17, 0.04  # floor above ambient
+        # We have an external construction.
+        if type == 'wall':
+            return 0.13, 0.04
+        elif type == 'ceiling':  # actually 'roof'
+            return 0.10, 0.04
+        return 0.17, 0.04  # floor above ambient
 
     def thicknesses(self) -> np.ndarray:
         "np.array with thickness of each Layer"
