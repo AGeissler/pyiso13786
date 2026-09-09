@@ -2,7 +2,11 @@ ISO_13786 documentation
 =======================
 
 ISO_13786 is an open, Python-based package providing methods for the calculation
-procedures of ISO 13786:2017.
+procedures of ISO 13786:2017. The package also includes calculation procedures from
+ISO 13788:2012. The package builds on Based on the code by Nicola Meoli from the archive
+https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components.
+Changes include but are not restricted to translation to english and extension by the
+class :py:class:`ISO_13786.space.Space`.
 
 .. grid::
 
@@ -25,7 +29,7 @@ procedures of ISO 13786:2017.
       :link: examples
       :link-type: ref
 
-      A gallery of examples.
+      A gallery of examples ((tbd)).
 
 
 .. admonition:: Highlights

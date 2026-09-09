@@ -29,7 +29,7 @@ Create a simple wall and inspect its periodic thermal transmittance:
 Plotting
 --------
 
-You can compare several constructions in a single chart:
+You can compare several construction systems in a single chart:
 
 .. code-block:: python
 
