@@ -11,4 +11,5 @@ simple box-like spaces and offers various evaluation methods.
 .. automodule:: ISO_13786.space
    :members:
    :undoc-members:
+   :private-members:
    :show-inheritance:

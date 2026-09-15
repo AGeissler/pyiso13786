@@ -11,4 +11,5 @@ for setting up a construction and various evaluation methods.
 .. automodule:: ISO_13786.construction
    :members:
    :undoc-members:
+   :private-members:
    :show-inheritance:

@@ -11,4 +11,5 @@ This module contains the classes :class:`~ISO_13786.layer.Material` and
 .. automodule:: ISO_13786.layer
    :members:
    :undoc-members:
+   :private-members:
    :show-inheritance:

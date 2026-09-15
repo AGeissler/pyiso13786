@@ -11,4 +11,5 @@ for material, layer and space data management.
 .. automodule:: ISO_13786.database
    :members:
    :undoc-members:
+   :private-members:
    :show-inheritance:
