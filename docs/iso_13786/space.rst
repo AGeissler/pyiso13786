@@ -3,7 +3,8 @@
 Space
 =====
 
-This module contains :class:`~ISO_13786.space.Space`.
+This module contains :class:`~ISO_13786.space.Space`. It allows for the definition of
+simple box-like spaces and offers various evaluation methods.
 
 .. currentmodule:: iso-13786
 

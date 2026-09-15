@@ -3,7 +3,9 @@
 Utilities
 =========
 
-This module contains utility functions.
+This module contains utility functions used in the classes
+:class:`~ISO_13786.layer.Material`, :class:`~ISO_13786.layer.Layer`,
+:class:`~ISO_13786.construction.Construction` and :class:`~ISO_13786.space.Space`.
 
 .. currentmodule:: ISO_13786
 
