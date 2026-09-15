@@ -8,7 +8,7 @@ __all__ = [
    "Construction",
    "Space",
    "plot_bar_chart_comparison",
-   "unit_normals",
+   "unit_normal",
    "create_dimension_dict",
    "poly_area",
    "poly_side_lengths",
@@ -44,11 +44,11 @@ def __getattr__(name):
         return {
             "Space": Space
         }[name]
-    if name in {"plot_bar_chart_comparison", "unit_normals", "create_dimension_dict",
+    if name in {"plot_bar_chart_comparison", "unit_normal", "create_dimension_dict",
                 "poly_area", "poly_side_lengths", "d2_fun", "tilted_window_vertices"}:
         from .utils import (
             plot_bar_chart_comparison,
-            unit_normals,
+            unit_normal,
             create_dimension_dict,
             poly_area,
             poly_side_lengths,
@@ -57,7 +57,7 @@ def __getattr__(name):
         )
         return {
             "plot_bar_chart_comparison": plot_bar_chart_comparison,
-            "unit_normals": unit_normals,
+            "unit_normal": unit_normal,
             "create_dimension_dict": create_dimension_dict,
             "poly_area": poly_area,
             "poly_side_lengths": poly_side_lengths,

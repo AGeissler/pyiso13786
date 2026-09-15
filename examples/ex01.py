@@ -18,7 +18,7 @@ import pandas as pd
 
 # Local imports
 from ISO_13786 import Material, Layer, Construction, Space
-from ISO_13786 import material_db as mat
+from ISO_13786.material_db import material_db as mat
 
 # %%
 # Define necessary layers using available materials from
