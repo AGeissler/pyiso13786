@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from ISO_13786 import Material
+from pyiso13786 import Material
 
 @dataclass
 class MaterialDataBase:

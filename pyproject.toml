@@ -5,63 +5,63 @@
     ]
 build-backend = "setuptools.build_meta"
 
- [tool.setuptools.package-data]
- iso_13786 = ["../../example_data/*.csv"]
+[tool.setuptools.package-data]
+pyiso13786 = ["../../example_data/*.csv"]
 
- [project]
- name = "iso_13786"
- description = "Thermal heat capacity according to international standard ISO 13786:2017."
- readme = "README.md"
- authors = [
-   {name = "Achim Geissler", email = "achim.geissler@acatalepsy.ch"},
- ]
- requires-python = ">=3.11"
- license = "GPL-3.0-or-later"
- license-files = ["LICENSE"]
- keywords = [
-   "building-energy",
-   "surface-heat-capacity",
-   "ISO-13786",
-   "open-source",
-   "python",
-   "scientific-computing",
- ]
- classifiers = [
-   "Development Status :: 3 - Development/Usable",
-   "Programming Language :: Python",
-   "Intended Audience :: Science/Research",
-   "Operating System :: OS Independent",
-   "Programming Language :: Python",
-   "Programming Language :: Python :: 3",
-   "Programming Language :: Python :: 3.11",
-   "Programming Language :: Python :: 3.12",
-   "Programming Language :: Python :: 3.13",
-   "Programming Language :: Python :: 3.14",
-   "Topic :: Scientific/Engineering",
-   "Topic :: Scientific/Engineering :: Thermodynamics",
-   "Topic :: Utilities"
- ]
- dynamic = ["version"]
+[project]
+name = "pyiso13786"
+description = "Thermal heat capacity according to international standard ISO 13786:2017."
+readme = "README.md"
+authors = [
+  {name = "Achim Geissler", email = "achim.geissler@acatalepsy.ch"},
+]
+requires-python = ">=3.11"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+keywords = [
+  "building-energy",
+  "surface-heat-capacity",
+  "ISO-13786",
+  "open-source",
+  "python",
+  "scientific-computing",
+]
+classifiers = [
+  "Development Status :: 3 - Development/Usable",
+  "Programming Language :: Python",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Thermodynamics",
+  "Topic :: Utilities"
+]
+dynamic = ["version"]
 
- dependencies = [
-   "dataclasses",
-   "matplotlib",
-   "pandas",
-   "numpy",
-   "pathlib",
- ]
+dependencies = [
+  "dataclasses",
+  "matplotlib",
+  "pandas",
+  "numpy",
+  "pathlib",
+]
 
- [project.optional-dependencies]
- docs = [
-     "pydata-sphinx-theme",
-     "sphinx-autoapi",
-     "sphinx-codeautolink",
-     "sphinx-copybutton",
-     "sphinx-design",
-     "sphinx-gallery",
-     "sphinx-inline-tabs",
-     "pypandoc",
- ]
+[project.optional-dependencies]
+docs = [
+    "pydata-sphinx-theme",
+    "sphinx-autoapi",
+    "sphinx-codeautolink",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinx-gallery",
+    "sphinx-inline-tabs",
+    "pypandoc",
+]
 
- [tool.setuptools.dynamic]
- version = {attr = "iso_13786.__about__.__version__"}
+[tool.setuptools.dynamic]
+version = {attr = "pyiso13786.__about__.__version__"}

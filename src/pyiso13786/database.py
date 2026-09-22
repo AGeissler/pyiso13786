@@ -1,5 +1,5 @@
 """Database class to manage material, layer, construction system and space
-   data for ISO 13796 package."""
+   data for pyiso13796 package."""
 import os
 from ast import literal_eval
 from typing import List, Dict, Optional
@@ -12,7 +12,7 @@ from .construction import Construction
 from .space import Space
 
 class Database:
-    """Database for ISO 13786 materials, layers, construction types and spaces."""
+    """Database for pyiso13786 materials, layers, construction types and spaces."""
     _instance = None
 
     @classmethod
@@ -101,7 +101,7 @@ class Database:
         Parameters
         ----------
         space : Space
-            A Space object from ISO_13786.
+            A Space object from pyiso13786.
 
         Returns
         -------
