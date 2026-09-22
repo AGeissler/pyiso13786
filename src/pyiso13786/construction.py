@@ -10,15 +10,55 @@ from typing import Optional
 
 @dataclass
 class Construction:
-    """ The element 'type' is the definition of the surface type, i.e. wall,
-    floor, ceiling. If Construction.partion is false, the outside surface will
-    have R_se as external heat transfer resistance, otherwise R_si by type
-    according to ISO 6946.
+    r"""A construction based on one or more material layers of given thickness.
+
+    Parameters
+    ----------
+    name : str
+        Name of the construction.
+    layers : list
+        List of layers.
+    type : str (optional, default: 'wall')
+        Construction type, one of 'wall', 'floor', 'ceiling'.
+    partition : bool (optional, default: True)
+        Toggle for construction boundary conditions, i.e. a partition is *not* external.
+    temp_int : float (optional, default: 20)
+        Internal boundary (air) temperature in (°C).
+    temp_ext : float (optional, default: -5)
+        External boundary (air) temperature in (°C).
+    rel_hum_i : float (optional, default: 0.65)
+        Relative humidity of internal air in (-).
+    rel_hum_e : float (optional, default: 0.9)
+        Relative humidity of external air in (-).
+    time : int (optional, default: 24)
+        Period length of attenuation in (h).
+
+    Notes
+    -----
+    The element 'type' is the definition of the surface type, i.e. wall, floor, ceiling.
+    If Construction.partion is `False`, the outside surface will have :math:`R_{se}` as
+    external heat transfer resistance, otherwise :math:`R_{se}\,=\,R_{si}` by 'type'
+    according to ISO 6946 [ISO6946]_.
 
     Layers are given from inside to outside.
+    
+    Equation numbers following equations refer to the number found in ISO 13786 [ISO13786]_.
+
+    References
+    ----------
+    ..  [ISO6946] EN ISO 6946 (SIA 180.071), Building components and building elements
+            - Thermal resistance and thermal transmittance - Calculation method
+            (ISO 6946:2017), CEN - European Committee for Standardization, 2017.
+    ..  [ISO13786] EN ISO 13786 (SIA 180.073), Thermal performance of building components
+            - Dynamic thermal characteristics - Calculation methods (ISO 13786:2017),
+            CEN - European Committee for Standardization, 2017.
+
+
     """
-    def __init__(self, name, layers, temp_int=20, temp_ext=-5, rel_hum_i=0.65,
-                 rel_hum_e=0.9, time=24, type='wall', partition=True):
+
+    def __init__(self, name, layers, type='wall', partition=True,
+                 temp_int=20, temp_ext=-5, rel_hum_i=0.65, rel_hum_e=0.9, time=24):
+        """Initialise a construction with layers and boundary conditions."""
         self.name = name
         self.layers = layers  # list[Layer,]
         # int, i = internal, ext, e = external :
@@ -34,6 +74,7 @@ class Construction:
                                                            self.type)
 
     def __hash__(self):
+        """Return a hash based on the construction definition."""
         return hash((self.name,
                      tuple(self.layers),
                      self.temp_int,
@@ -46,6 +87,7 @@ class Construction:
                      self.partition))
 
     def __eq__(self, other):
+        """Return True when two constructions describe the same assembly."""
         if not isinstance(other, Construction):
             return NotImplemented
         return (
@@ -63,6 +105,7 @@ class Construction:
 
     @staticmethod
     def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        """Compare two floating-point values with a small tolerance."""
         # Handle cases where either or both are None
         if a is None or b is None:
             return a == b
@@ -71,9 +114,22 @@ class Construction:
 
     @staticmethod
     def heat_transfer_resistance(partition, type):
-        """ Return internal and external heat transfer resistance according to
-            ISO 6946 depending on construction usage (partition and one of
-            wall, floor, ceiling). """
+        r"""Return internal and external heat transfer resistance chosen according to
+        ISO 6946 [ISO6946]_ depending on construction situation and type.
+
+        Parameters
+        ----------
+        partition : bool
+            Toggle for construction boundary situation.
+        type : str
+            Construction type, one of 'wall', 'floor', 'ceiling'.
+
+        Returns
+        -------
+        R_si, R_se : float
+            Internal, external heat transfer resistance in :math:`m^2 W/K`.
+
+        """
         if partition is True:
             # We have an internal construction.
             if type == 'wall':
@@ -89,54 +145,55 @@ class Construction:
         return 0.17, 0.04  # floor above ambient
 
     def thicknesses(self) -> np.ndarray:
-        "np.array with thickness of each Layer"
+        r"""numpy.array with thickness of each Layer"""
         return np.array([layer.thickness for layer in self.layers])
 
     def thickness_tot(self) -> float:
-        "np.array with the total thickness"
+        r"""numpy.array with the total thickness"""
         return np.sum(self.thicknesses())
 
     def thickness_cumsum(self) -> np.ndarray:
-        "cumulative sum of thickness of each Layer. Starting from 0"
+        r"""cumulative sum of thickness of each layer. Starting from 0"""
         s = np.cumsum(self.thicknesses(), dtype=float)
         s = np.insert(s, 0, 0.0)
         return s
 
     def thermal_conductivities(self) -> np.ndarray:
-        "np.array with thermal conductivitiy of each Layer"
+        r"""numpy.array with thermal conductivitiy :math:`\lambda` in W/(m K) of each
+        layer."""
         return np.array([layer.thermal_conductivity for layer in self.layers])
 
     def vapor_permeabilities(self) -> np.ndarray:
-        "np.array with vapor permeability of each Layer"
+        r"""numpy.array with vapor permeability of each layer."""
         return np.array([layer.vapor_permeability for layer in self.layers])
 
     def densities(self) -> np.ndarray:
-        "np.array with density of each Layer"
+        r"""numpy.array with density of each layer."""
         return np.array([layer.density for layer in self.layers])
 
     def specific_heats(self) -> np.ndarray:
-        "np.array with specific_heat of each Layer"
+        r"""numpy.array with specific heat of each layer."""
         return np.array([layer.specific_heat for layer in self.layers])
 
     # ======== STATIC ANALYSIS ========
 
     def equivalent_thicknesses(self) -> np.ndarray:
-        "np.array with Sd of each Layer"
+        r"""numpy.array with equivalent thickness :math:`S_d` in (m) of each layer."""
         return np.array([layer.equivalent_thickness for layer in self.layers])
 
     def equivalent_thickness_tot(self) -> float:
-        "sum of Sd of each Layer"
+        r"""Sum of :math:`S_d` for all layers."""
         return np.sum(self.equivalent_thicknesses())
 
     def equivalent_thickness_cumsum(self) -> np.ndarray:
-        "cumulative sum of Sd of each Layer. Starting from 0"
+        r"""Cumulative sum of :math:`S_d` up to each layer. Starting from 0."""
         cum_sum = np.cumsum(self.equivalent_thicknesses(), dtype=float)
         cum_sum = np.insert(cum_sum, 0, 0.0)
         return cum_sum
 
     def thermal_resistances(self) -> np.ndarray:
-        """np.array with the thermal resistance of each Layer, with addition of
-           the internal and external surface thermal resistance"""
+        r"""Thermal resistance :math:`s/\lambda` in m2 K/W of each layer, with addition
+        of the internal and external surface heat transfer resistance."""
         res = np.array([layer.thermal_resistance for layer in self.layers])
         res = np.insert(res, 0, self.Rsi)  # put Rsi as first layer
         res = np.append(res, self.Rse)  # append Rse as last layer
@@ -144,19 +201,30 @@ class Construction:
         return res
 
     def thermal_resistance_tot(self) -> float:
-        "sum of the thermal resistances. Starting from the surface internal' one"
+        r"""Total sum of the thermal resistances of all layers including internal and
+        external heat transfer.
+
+        :math:`R_{tot} = \sum{R_i}\text{  in }\frac{m^2 K}{W}`
+
+        """
         return np.sum(self.thermal_resistances())
 
     def thermal_resistance_cumsum(self) -> np.ndarray:
-        "cumulative sum of the thermal resistances"
+        r"""Cumulative sum of the thermal resistances up to each layer.
+        """
         cum_sum = np.cumsum(self.thermal_resistances(), dtype=float)
         return cum_sum
 
     def thermal_transmittance(self) -> float:
-        "U = 1/R_tot"
+        r"""Thermal transmittance value.
+        
+        :math:`U = \frac{1}{R_{tot}\text{  in }\frac{W}{m^2 K}}`
+
+        """
         return 1 / self.thermal_resistance_tot()
 
     def surface_temperatures(self) -> np.ndarray:
+        r"""numpy.array of layer surface temperatures."""
         delta_temp = self.temp_int - self.temp_ext
         temp = self.temp_int - (
             (self.thermal_resistance_cumsum() * delta_temp)
@@ -170,6 +238,8 @@ class Construction:
         return temp
 
     def saturation_pressures(self) -> np.ndarray:
+        r"""Saturation pressure value :math:`p_{sat}` at each layer boundary temperature.
+        """
         return np.array(
             [
                 610.5 * np.exp(17.269 * temp / (237.3 + temp))
@@ -180,8 +250,8 @@ class Construction:
         )
 
     def internal_pressures(self) -> np.ndarray:
-        """Calculate partial vapor pressure at each layer boundary assuming
-           a constant value for air vapor conductivity ('Dampfleitfaehigkeit')
+        r"""Partial vapor pressure at each layer boundary assuming
+           a constant value for air vapor conductivity ('Dampfleitfaehigkeit').
         """
         p_int = self.rel_hum_i * self.saturation_pressures()[0]
         p_ext = self.rel_hum_e * self.saturation_pressures()[-1]
@@ -205,7 +275,7 @@ class Construction:
         return press
 
     def plot_glaser(self, show_layer_color: bool = True, show_layer_name: bool = True):
-        "Plot the Glaser diagram for the considered compound structure"
+        r"""Plot the Glaser diagram for the considered compound structure."""
 
         COLORS = [
             list(plt.rcParams["axes.prop_cycle"])[col]["color"]
@@ -372,7 +442,11 @@ class Construction:
     # Calculation according to ISO 13768:2017, chapters 7 and 8.
     # Equation numbers refer to this standard.
     def delta(self) -> np.ndarray:
-        """Periodic penetration depth delta, eq. (11)"""
+        r"""Periodic penetration depth :math:`\delta`, eq. (11) for period T in (s).
+
+        :math:`\delta = \sqrt{\frac{\lambda\,T}{\pi\,\rho\,c_p}}`
+
+        """
         # TIME: hour to seconds
         return np.sqrt(
             (self.thermal_conductivities() * self.time * 3600)
@@ -412,8 +486,10 @@ class Construction:
 
     def construction_transfer_matrix(self, Rs=True) -> np.ndarray:
         """ Calculate construction transfer matrix, optionally include
-            surface resistances.
-            Z = W_N * W_N-1 * ... * W_1  (16)
+            surface resistances (eq. (16)).
+
+            :math:`Z = W_N * W_{N-1} * ... * W_1`
+
         """
         zz = self.layer_transfer_matrix()
 
@@ -448,7 +524,7 @@ class Construction:
         return Z
 
     def internal_thermal_admittance(self) -> float:
-        "Y11 = -Z11/Z12, eq. (19)"
+        r"""Y11 = -Z11/Z12, eq. (19)"""
         Zee = self.construction_transfer_matrix()
 
         Y11 = -Zee[0][0] / Zee[0][1]
@@ -457,7 +533,7 @@ class Construction:
         return Y11
 
     def external_thermal_admittance(self, Rs=True) -> float:
-        "Y22 = -Z22/Z12, eq. (19)"
+        r"""Y22 = -Z22/Z12, eq. (19)"""
         Zee = self.construction_transfer_matrix(Rs=Rs)
 
         Y22 = -Zee[1][1] / Zee[0][1]
@@ -466,7 +542,16 @@ class Construction:
         return Y22
 
     def internal_area_heat_capacity(self, Rs=True) -> float:
-        "k1 = 1/omega * |(Z11-1)/Z12| in Wh/(m2 K), eq. (22)"
+        r"""Internal area heat capacity :math:`k_1` in
+        :math:`\text{Wh/(m}^{2 }\text{K)}` calculated according to eqn. :eq:`eq. (22)`.
+
+        .. math:: 
+           :label: eq. (22)
+
+           k_1 &= \frac{1}{\omega}\left|\frac{(Z_{11}-1)}{Z_{12}}\right|\qquad\text{ eq. (22)} \\
+               &= \frac{t}{2\pi} \sqrt{\left(\frac{Z_{11}-1}{Z_{12}}\right)^2}
+
+        """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
@@ -478,7 +563,16 @@ class Construction:
         return kappa/3600 # Wh/(m2 K)
 
     def external_area_heat_capacity(self, Rs=True) -> float:
-        "k2 = 1/omega * |(Z22-1)/Z12| in Wh/(m2 K), eq. (23)"
+        r"""External area heat capacity :math:`k_2` in 
+        :math:`\text{Wh/(m}^{2 }\text{K)}` calculated according to eqn. :eq:`eq. (21)`.
+
+        .. math::
+           :label: eq. (21)
+
+           k_2 &= \frac{1}{\omega}\left|\frac{(Z_{22}-1)}{Z_{12}}\right|\qquad\text{ eq. (23)} \\
+               &= \frac{t}{2\pi} \sqrt{\left(\frac{Z_{22}-1}{Z_{12}}\right)^2}
+
+        """
         Zee = self.construction_transfer_matrix(Rs=Rs)
         kappa = ((self.time * 3600)  # time in seconds
                   / (2 * np.pi)
@@ -489,7 +583,14 @@ class Construction:
         return kappa/3600  # Wh/(m2 K)
 
     def periodic_thermal_transmittance(self) -> float:
-        """Y12 = -1/Z12, eq. (24)"""
+        r"""Periodic thermal transmittance calculated acc. to eqn. :eq:`eq. (24)`.
+
+        .. math::
+           :label: eq. (24)
+
+           Y_{12} = -\frac{1}{Z_{12}}\qquad\text{ eq. (24)}
+
+        """
         Y12 = -1 / self.construction_transfer_matrix()[0][1]
         # Modulus (absolute value) |Y12|.
         Y12 = np.sqrt((Y12.real) ** 2 + (Y12.imag) ** 2)
@@ -497,14 +598,22 @@ class Construction:
         return Y12
 
     def decrement_factor(self) -> float:
-        """f = |Y12|/U0, eq. (25)"""
+        r"""Decrement factor using the periodic thermal transmittance and overall
+        transmittance acc. to eqn. :eq:`eq. (25)`.
+
+        .. math::
+           :label: eq. (25)
+
+           f = \frac{\left|Y_{12}\right|}{U}\qquad\text{ eq. (25)}
+
+        """
         return (
             self.periodic_thermal_transmittance() /
                                     self.thermal_transmittance()
         )
 
     def time_shift(self) -> float:
-        """Time shift of periodic thermal transmittance, eq. (26)"""
+        """Time shift of periodic thermal transmittance, eq. (26)."""
         Zee = self.construction_transfer_matrix()
         # Time in hours
         return (
@@ -513,28 +622,33 @@ class Construction:
         )
 
     def phase_shift(self) -> float:
+        r"""Phase shift of periodic thermal transmittance, eq. (??)."""
         return self.time_shift() + self.time / 2
 
     # ======== SOME COMPOUND STRUCTURE PROPERTIES ========
     def surface_mass(self) -> float:
+        r"""Total surface mass of construction in kg/m2."""
         return np.sum(self.thicknesses() * self.densities())
 
     def static_heat_capacity(self) -> float:
+        r"""Total static heat capacity of construction in J/(kg K)."""
         return np.sum(self.thicknesses() * self.densities() * self.specific_heats())
 
     def thermal_diffusivities(self) -> np.ndarray:
+        r"""Thermal diffusivity of each layer in (m2/s)."""
         return (self.thermal_conductivities() / (
             self.densities() * self.specific_heats()
             )
         )
 
     def thermal_effusivities(self) -> np.ndarray:
+        r"""Thermal effusivity of each layer in (W s0.5/(m2 K)). ((tbc))"""
         return np.sqrt(
             self.thermal_conductivities() * self.densities() * self.specific_heats()
         )
 
     def properties(self):
-        """Dict of construction properties"""
+        r"""Dict of construction properties"""
         # Set up a list of generic layer names.
         laynam = []
         if len(self.layers) == 1:
@@ -554,7 +668,7 @@ class Construction:
     # ======== PRINTING RESULTS ========
 
     def run_analysis(self, rh=False, detailed=False) -> str:
-        "Return (all) results as a string"
+        r"""Return (all) results as a string."""
         # TODO: Add formatting, parameter names and units for nicer output
         res = "\nConstruction '" + self.name + "':"
         res += '\nd_i          ' + str(self.thicknesses())
@@ -590,7 +704,7 @@ class Construction:
         return res
 
     def create_dict_valuable_properties(self) -> dict:
-        """
+        r"""
         Used to create the bar plot for comparison of different
         constructions.
 

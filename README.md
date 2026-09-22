@@ -1,10 +1,16 @@
-# ISO 13786 - dynamic thermal characteristics
+# pyiso13786 – Python implementation of ISO 13786 methods
 
-Python code for the calculation of the (24 h) periodic thermal characteristics of 
-building components and spaces.
+Python code for the calculation of the (24 h) periodic thermal characteristics of
+building components and spaces, implementing the methods from **ISO 13786**.
 
-Based on the code by Nicola Meoli from the archive  https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components,
-translated to english and extended by the class 'Space'.
+Based on the code by Nicola Meoli from the archive
+[https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components),
+translated to English and extended by the class `Space`.
+
+This project is **not** an official ISO publication and is not endorsed by ISO.
+The ISO 13786 standard itself remains copyrighted and must be obtained from ISO
+or a national standards body.
+
 
 ## Usage
 ### Simple example for a wall
@@ -14,8 +20,8 @@ pip install .
 ```
 and then importing
 ```python
-from ISO_13786 import Material, Layer, Construction, Space
-from ISO_13786 import material_db as mat
+from pyiso13786 import Material, Layer, Construction, Space
+from pyiso13786 import material_db as mat
 ```
 
 Create the Layers of a compund wall
@@ -48,7 +54,7 @@ gives `0.???`
 
 ### Plotting a comparison between two Walls:
 ```python
-from ISO_13786 import plot_bar_chart_comparison
+from pyiso13786 import plot_bar_chart_comparison
 
 my_wall1 = Construction(name="mine", layers=[gipsputz, kalksandstein, gipsputz])
 my_wall2 = Construction(name="mine", layers=[gipsputz, stahlbeton, gipsputz])
@@ -90,3 +96,26 @@ Now look at some space values.
 print(f"C_R/A_NGF, w/o depth limit: {room.thermal_capacity():.3f}")
 print(f"C_R/A_NGF,  w/ depth limit: {room_restricted.thermal_capacity():.3f}")
 ```
+
+## Documentation
+The project now includes a Sphinx documentation tree under [docs](docs). Build it locally with:
+
+```bash
+pip install -e .[docs]
+make -C docs html
+```
+
+The generated API reference is based on the public classes and functions exported by the package.
+
+## Legal / Intellectual Property
+
+This package implements calculation methods described in **ISO 13786** (“Thermal performance of building components — Dynamic thermal characteristics — Calculation methods”).
+The ISO standard document itself is copyrighted by ISO and must be obtained from ISO or a national standards body.
+
+This project:
+
+- Is **not** an official ISO publication.
+- Is **not** endorsed or approved by ISO.
+- Does **not** include the text of the ISO standard.
+
+The code and documentation in this repository are provided under the project’s open‑source license (see `LICENSE`). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
