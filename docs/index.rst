@@ -1,13 +1,13 @@
-ISO_13786 documentation
-=======================
+pyiso13786 documentation
+========================
 
-ISO_13786 is an open, Python-based package providing methods for the calculation
+pyiso13786 is an open, Python-based package providing methods for the calculation
 procedures of ISO 13786:2017. The package includes some calculation procedures from
 ISO 13788:2012. The package builds on the code by Nicola Meoli from the archive
 https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components.
 
 Changes/extensions include but are not restricted to the translation to english and the
-addition of the class :py:class:`ISO_13786.space.Space`.
+addition of the class :py:class:`pyiso13786.space.Space`.
 
 .. grid::
 
@@ -18,7 +18,7 @@ addition of the class :py:class:`ISO_13786.space.Space`.
       Getting started.
 
    .. grid-item-card:: 📖 API reference
-      :link: iso-13786-api
+      :link: pyiso13786-api
       :link-type: ref
 
       The reference guide contains a detailed description of the ISO_13786 API.
@@ -57,12 +57,30 @@ and run
    
    examples/index
    howto
-   iso_13786
+   pyiso13786
 
 License
 -------
 
-ISO 13786 - (C) 2026 Achim Geissler, Reinach BL (Switzerland).
+Legal / Intellectual Property
+-----------------------------
+
+This package implements calculation methods described in **ISO 13786** (“Thermal
+performance of building components — Dynamic thermal characteristics — Calculation
+methods”). The ISO standard document itself is copyrighted by ISO and must be obtained
+from ISO or a national standards body.
+
+This project:
+
+- Is **not** an official ISO publication.
+- Is **not** endorsed or approved by ISO.
+- Does **not** include the text of the ISO standard.
+
+The code and documentation in this repository are provided under the project’s open‑source
+license (see `LICENSE`). Any use of this software is subject to that license and does not
+grant any rights to reproduce or redistribute the ISO standard itself.
+
+pyiso13786 - (C) 2026 Achim Geissler, Reinach BL (Switzerland).
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

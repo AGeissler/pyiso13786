@@ -1,7 +1,7 @@
 .. _how-to:
 
-How to use ISO 13786
-====================
+How to use pyiso13786
+=====================
 
 Installation
 ------------
@@ -33,7 +33,7 @@ You can compare several construction systems in a single chart:
 
 .. code-block:: python
 
-   from ISO_13786 import Construction, Layer, Material, plot_bar_chart_comparison
+   from pyiso13786 import Construction, Layer, Material, plot_bar_chart_comparison
    import matplotlib.pyplot as plt
 
    wall_a = Construction(name="A", layers=[Layer(name="L1", thickness=0.1, material=mat.gipsputz)])
@@ -44,5 +44,5 @@ You can compare several construction systems in a single chart:
 Working with spaces
 -------------------
 
-Use the :class:`ISO_13786.space.Space` class to calculate room-level properties such as
+Use the :class:`pyiso13786.space.Space` class to calculate room-level properties such as
 thermal capacity and glazing ratios.
