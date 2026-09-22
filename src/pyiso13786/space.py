@@ -1,14 +1,13 @@
-""" A class for a box-like space.
+"""A class for a box-like space.
 
-    Width x height (w x h + d x h) is the (internal) area of the external wall
-    (external walls) which include a window (include windows). The window area
-    is calculated as
+Width x height (w x h + d x h) is the internal area of the external wall
+(external walls) that include a window. The window area is calculated as
 
-         window_area = facade_area x window_to_wall_ratio.
+``window_area = facade_area x window_to_wall_ratio``.
 
-    where 'facade_area' refers to the facade area viewed from outside using
-    'ceiling' thickness and ignoring the optional 'ceiling_2'.
-    """
+Where ``facade_area`` refers to the facade area viewed from outside using the
+ceiling thickness and ignoring the optional ``ceiling_2``.
+"""
 
 import sys
 import math
@@ -23,31 +22,66 @@ from .utils import create_dimension_dict, poly_area, poly_side_lengths
 
 @dataclass
 class Space:
-    """ Calculate heat capacity of a box-like space featuring one or two
-    facades with a window. The glass area Ag is derived from given GAN and net
-    floor area.
-    (a) Window in one facade: Ag is inserted in external wall with dimensions
-        width x height.
-    (b) Windows in two facades: Ag/2 is inserted in each of the external walls
-        (width x height, depth x height).
+    r"""Calculate heat capacity of a box-like space with one or two external facades.
 
-    Construction systems for space surfaces are given as a list of tuples,
-    the first element is a descriptive string for which surface the
-    construction is applied to. The strings are defined counterclockwise
-    from the external wall (assuming a south facing external wall) followed
-    by the window in the external wall:
+    Parameters
+    ----------
+    name : str
+        Name of the space.
+    width : float
+        Internal width of the space in (m).
+    height : float
+        Internal height of the space in (m).
+    depth : float
+        Internal depth of the space in (m).
+    construction_list : list[(str, Construction)]
+        List of tuples (space_surface_name, Construction) of construction systems used.
+    depth_factor : float (optional, default: 2.5)
+        Factor ... (-).
+    deeper_than : float (optional, default: 4.0)
+        Depth of space from external facade for which daylight is assumed in (m).
+    glass_area_number : float (optional, default: 0.54)
+        Glass area number for space (-).
+    window_frame_fraction : float (optional, default: 0.25)
+        Frame fraction of window(s), (-).
+    ceiling_split_fraction : float (optional, default: 1.0)
+        Fraction of split between construction systems 'ceiling' and 'ceiling_2' (-)
+    windows_in_two_facades : bool (optional, default: False)
+        Toggle for defining a space as having two windows.
+    roof_space : bool (optional, default: False)
+        Toggle for defining a space as 'roof space'.
+    jamb_height : float (optional, default: 0.0)
+        Height of jamb wall, used only if roof_space == True.
+    roof_tilt : float (optional, default: 60)
+        Tilt of sloped roof measured from the horizontal, (°).
+
+    Notes
+    -----
+    Construction systems for space surfaces are provided as a list of tuples. The first
+    tuple element identifies the space surface, while the second element is an instance
+    of :class:`Construction`.
+
+    The space surface strings are defined counterclockwise from the external wall
+    (assuming a south facing external wall) followed by the window in the external
+    wall: ::
+
       ext, win, east, north, west, floor, ceiling [, ceiling2]
       roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
 
-    The second tuple element is an instance of class 'Construction'.
+    The glass area :math:`A_g` is derived from the given glass-area number and the net
+    floor area. In the single-facade case, the glass area is inserted into the external
+    wall which has the dimensions width :math:`\times` height. 
 
-    If two windows are present (windows_in_two_facades == True), the
-    construction system for 'west' is set to 'ext'.
+    If two windows are present (windows_in_two_facades == True), the construction system
+    for 'west' is set to that of 'ext'. Half of the glass area is inserted into each
+    external wall.
 
     The optional 'ceiling2' covers a fraction of 'ceiling_split_fraction'
     of the total ceiling area and is assumed to be located away from the
     external facade(s) / the roof.
+
     """
+
     name: str
     width: float
     height: float
@@ -64,6 +98,7 @@ class Space:
     roof_tilt: float = 60
 
     def __hash__(self):
+        """Return a hash based on the space definition."""
         return hash((self.name,
                      self.width,
                      self.height,
@@ -81,6 +116,8 @@ class Space:
                      ))
 
     def __eq__(self, other):
+        """Return True when 'other' describes the same geometry and setup as 'self'.
+        """
         if not isinstance(other, Space):
             return NotImplemented
         return (
@@ -105,6 +142,7 @@ class Space:
 
     @staticmethod
     def _float_eq(a: Optional[float], b: Optional[float], tol: float = 1e-9) -> bool:
+        r"""Compare two floating-point values with a small tolerance."""
         # Handle cases where either or both are None
         if a is None or b is None:
             return a == b
@@ -112,7 +150,7 @@ class Space:
         return math.isclose(a, b, abs_tol=tol)
 
     def __post_init__(self):
-        """ Do some checks and initialisations.
+        r""" Do some checks and initialisations.
         """
         if self.roof_space:
             # roof, win, jamb, east, north, west, floor, ceiling [, ceiling2]
@@ -138,12 +176,13 @@ class Space:
             print("Two windows not allowed for roof space!")
             sys.exit(9)
 
-        if self.ceiling_split_fraction >= 0.98:
+        if self.ceiling_split_fraction > 0.98:
             self.construction_list = self.construction_list[:self.min_constructions]
 
         # Store actual space depth and net floor area.
         self.total_depth = self.depth
-        self.net_floor_area = self.width*self.depth
+        self.effective_depth = self.depth
+        self.net_floor_area = self.width*self.total_depth
 
         # Calculate total glass area.
         self.glass_area = self.glass_area_number*self.net_floor_area
@@ -160,15 +199,15 @@ class Space:
                 # roll-back from a change in 'windows_in_two_facades' (only
                 # possible for box-like space)!
                 # << Todo: make "different internal walls" possible ...(!?) >>
-                self.construction_list[east] = self.construction_list[west]
+                self.construction_list[west] = self.construction_list[east]
             # Set effective depth to be used, if less than actual depth,
             # ignore back wall entirely for subsequent calculations!
             if self.depth > self.depth_factor*self.height:
-                self.depth = self.depth_factor*self.height
+                self.effective_depth = self.depth_factor*self.height
                 self.ignore_north = True
 
         # Set effective net floor area using effective depth.
-        self.eff_net_floor_area = self.width*self.depth
+        self.eff_net_floor_area = self.width*self.effective_depth
 
         # Calculate external facade area based on mid-line dimensions used for
         # internal walls, floor and ceiling. For two windows, use external
@@ -237,7 +276,7 @@ class Space:
                     )
 
     def surface_areas(self) -> np.ndarray:
-        "Applicable surface area for each construction."
+        r"""Applicable surface area in (m2) for each construction."""
         if self.ignore_north is True:
             back_wall_area = 0
         else:
@@ -272,9 +311,9 @@ class Space:
                 ext_wall_area = max(0, self.width*self.height - self.window_area())
                 s = np.array([ ext_wall_area,  # ext
                                self.window_area(),  # window
-                               self.depth*self.height,  # side wall
+                               self.effective_depth*self.height,  # side wall
                                back_wall_area,
-                               self.depth*self.height,  # side wall
+                               self.effective_depth*self.height,  # side wall
                                self.eff_net_floor_area  # floor
                                ])
 
@@ -285,19 +324,20 @@ class Space:
                 surface_heavy = (1 - self.ceiling_split_fraction)*c0
                 surface_light = c0 - surface_heavy
             else:
-                surface_heavy = (1 - self.ceiling_split_fraction)*self.depth*self.width
-                surface_light = self.depth*self.width - surface_heavy
+                surface_heavy = (1 - self.ceiling_split_fraction)\
+                                               *self.effective_depth*self.width
+                surface_light = self.effective_depth*self.width - surface_heavy
             s = np.append(s, (surface_heavy, surface_light))
         else:
             if self.roof_space:
                 s = np.append(s, poly_area(self.dim_dict['ceiling']))
             else:
-                s = np.append(s, self.depth*self.width)  # ceiling
+                s = np.append(s, self.effective_depth*self.width)  # ceiling
 
         return s
 
     def surface_internal_area_heat_capacities(self, Rs=True) -> np.ndarray:
-        "Internal heat capacities for construction surfaces"
+        r"""Internal heat capacities in Wh(m2 K) for construction surfaces."""
         c = []
         for con in self.construction_list:
             c.append(con[1].internal_area_heat_capacity(Rs=Rs))
@@ -307,9 +347,9 @@ class Space:
         return c
 
     def energy_reference_area(self) -> float:
-        """ SIA energy reference area of space defined when calling
-            constructor. It is calculated with 'external' dimensions;
-            mid-line dimensions are used for internal walls.
+        r"""SIA energy reference area :math:`A_E` of space defined when calling
+        constructor. It is calculated with 'external' dimensions; mid-line dimensions
+        are used for internal walls.
         """
         area = self.net_floor_area
 
@@ -326,9 +366,9 @@ class Space:
         return area
 
     def eff_energy_reference_area(self) -> float:
-        """ Effective SIA energy reference area w/o 'deep area'. It is
-            calculated with 'external' dimensions; mid-line dimensions
-            are used for internal walls.
+        r"""Effective SIA energy reference area :math:`A_{E,eff.}` w/o 'deep area'.
+        It is calculated with 'external' dimensions; mid-line dimensions are used for
+        internal walls.
         """
         area = self.eff_net_floor_area
 
@@ -350,17 +390,17 @@ class Space:
         return area
 
     def window_area(self) -> float:
-        """ Window area calculated from glass area and frame fraction.
+        r"""Window area calculated from glass area and frame fraction.
         """
         return self.glass_area*(1+self.window_frame_fraction)
 
     def window_fraction(self) -> float:
-        """ Window fraction defined as window area per net floor area.
+        r"""Window fraction defined as window area per net floor area.
         """
         return self.window_area()/self.eff_net_floor_area
 
     def window_to_wall_ratio(self) -> list:
-        """ Overall (external) window-to-wall or window-to-roof ratio."""
+        r"""Overall (external) window-to-wall or window-to-roof ratio."""
         if self.windows_in_two_facades:
             return [0.5*self.window_area()/self.facade_area[0],
                     0.5*self.window_area()/self.facade_area[1]]
@@ -370,10 +410,11 @@ class Space:
             return [self.window_area()/self.facade_area]
 
     def glass_to_wall_ratio(self) -> list:
-        """ Glass to wall ratio defined as glazing area per internal
-            wall area. For two windows it is assumed that the *glass area* is
-            evenly distributed on the two facades.
-            The glass-to-wall ratio can be used as WWR for E+ for box spaces!
+        r"""Glass to wall ratio defined as glazing area per internal wall area. For two
+        windows it is assumed that the *glass area* is evenly distributed on the two
+        facades.
+
+        This glass-to-wall ratio can be used as WWR for E+ for box spaces!
         """
         if self.windows_in_two_facades:
             return [0.5*self.glass_area/(self.width*self.height),  # long wall
@@ -384,8 +425,7 @@ class Space:
             return [self.glass_area/(self.width*self.height)]
 
     def glass_fraction(self) -> list:
-        """ Glass fraction defined as glazing area per (external) facade
-            or roof area.
+        r"""Glass fraction defined as glazing area per (external) facade or roof area.
         """
         if self.windows_in_two_facades:
             return [0.5*self.glass_area/self.facade_area[0],  # long wall
@@ -396,9 +436,14 @@ class Space:
             return [self.glass_area/self.facade_area]
 
     def opening_dimensions(self, high=False):
-        """ Opening dimensions of a ventilation window based on the
-            window fraction. It is assumed that 30 % of the frame area
-            is part of the opening, i.e. 70 % of the frame are 'fixed'.
+        r"""Opening dimensions of a ventilation window based on the window fraction. It
+        is assumed that 30 % of the frame area is part of the opening, i.e. 70 % of the
+        frame are 'fixed'.
+        
+        Parameters
+        ----------
+        high : bool, default: False
+            Toggle for opening height-to-width ratio assumption.
         """
         std_height = 1.25  # m
         opening_area = (1 - 0.7*self.window_frame_fraction)\
@@ -432,12 +477,13 @@ class Space:
         return o_width, o_height, opening_area
 
     def net_deep_area(self) -> float:
-        """ Calculate the net area of the space which lies more than
-            'deeper_than' away from the facade. Valid only for a window in one
-            facade!
+        r""" Calculate the net area of the space which lies more than 'deeper_than' away
+        from the facade. Valid only for a window in one facade!
 
-            This area is used for the calculation of internal lighting
-            loads.
+        Notes
+        -----
+        The calculated area is used for the calculation of internal lighting loads.
+
         """
         if self.windows_in_two_facades is False:
             if self.total_depth > self.deeper_than:
@@ -445,7 +491,8 @@ class Space:
         return 0
 
     def thermal_capacity(self, Rs=True) -> float:
-        """ Space internal heat capacity per net floor area in Wh/(m2 K).
+        r"""Space internal heat capacity per net floor area in Wh/(m2 K) based
+        on calculations according to ISO 13786 [ISO13786]_.
         """
         cr = 0
         area = self.surface_areas()
@@ -455,14 +502,14 @@ class Space:
         return cr/self.eff_net_floor_area
 
     def air_volume(self) -> float:
-        """ Internal air volume in m3.
+        r"""Internal air volume in m3.
         """
         if self.roof_space:
             return round(poly_area(self.dim_dict['west'])*self.width, 3)
-        return self.width*self.height*self.depth
+        return self.width*self.height*self.effective_depth
 
     def properties(self):
-        """Dict of (a few) space properties"""
+        r"""Dict of (a few) space properties"""
         return {
             'name': self.name,  # space name
             'constructions': {loc: con.properties()
@@ -470,7 +517,7 @@ class Space:
         }
 
     def properties_markdown(self):
-        """Create DataFrame with multi-index for tabular markdown output"""
+        r"""Create DataFrame with multi-index for tabular markdown output"""
         the_multi_index = ['location', 'construction', 'layers']
         # Get all unique property names from all construction layers.
         property_columns = set()
@@ -525,7 +572,7 @@ class Space:
     # ======== PRINTING RESULTS ========
 
     def show_properties(self) -> str:
-        """Return space properties as single (multi-line) string
+        r"""Return space properties as single (multi-line) string
         """
         res = f"Space '{self.name}':\n"
         res += f"net floor area = {self.net_floor_area} m2\n"
@@ -577,7 +624,7 @@ class Space:
         return res
 
     def dict_of_properties(self) -> dict:
-        """Create dict of space properties.
+        r"""Return dict of space properties.
         """
         if self.roof_space:
             ext_key = 'A_R'

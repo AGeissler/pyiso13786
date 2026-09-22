@@ -1,0 +1,17 @@
+.. _pyiso13786-api:
+
+API Reference
+=============
+
+The package `pyiso13786` consists of several (sub-) modules. Relevant functions and
+classes are available in the global namespace of `pyiso13786` where possible.
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Modules:
+
+   pyiso13786/layer
+   pyiso13786/construction
+   pyiso13786/space
+   pyiso13786/database
+   pyiso13786/utils
