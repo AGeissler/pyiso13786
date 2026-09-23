@@ -1,8 +1,8 @@
 r"""
-ISO 13786 Construction Parameters
----------------------------------
+Construction Parameters
+-----------------------
 
-.. topic:: Calculate various parameters according to ISO 13786
+.. topic:: Calculate various construction parameters according to ISO 13786 using ``pyiso13786``
 
    * Define layers based on available materials
 
@@ -18,13 +18,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Local imports
-from ISO_13786.utils import plot_bar_chart_comparison
-from ISO_13786 import Layer, Construction
-from ISO_13786.material_db import material_db as mat
+from pyiso13786.utils import plot_bar_chart_comparison
+from pyiso13786 import Layer, Construction
+from pyiso13786.material_db import material_db as mat
 
 # %%
 # Define necessary layers using available materials from
-# :class:`ISO_13786.material_db.MaterialDataBase`.
+# :class:`pyiso13786.material_db.MaterialDataBase`.
 daemmung190 = Layer(
     name="Daemmung hoher Dichte",
     thickness=0.10,

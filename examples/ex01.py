@@ -17,12 +17,12 @@ Thermal Capacity of a Room
 import pandas as pd
 
 # Local imports
-from ISO_13786 import Material, Layer, Construction, Space
-from ISO_13786.material_db import material_db as mat
+from pyiso13786 import Material, Layer, Construction, Space
+from pyiso13786.material_db import material_db as mat
 
 # %%
 # Define necessary layers using available materials from
-# :class:`ISO_13786.material_db.MaterialDataBase`.
+# :class:`pyiso13786.material_db.MaterialDataBase`.
 fassade = Layer(
     name="Fassade",
     thickness=0.008,
@@ -82,8 +82,9 @@ floor_1a = Construction(name="floor", layers=[gipsputz, stahlbeton, gipsputz],
                         type="floor")
 ceiling_1a = Construction(name="ceiling", layers=[gipsputz, stahlbeton, gipsputz],
                           type="ceiling")
+
 # %%
-# Define two rooms using :class:`ISO_13786.space.Space`.
+# Define two rooms using :class:`pyiso13786.space.Space`.
 room = Space(name="room", width=6.5, height=2.6, depth=8.5,
              construction_list=[('ext', wall_1a), ('win', window), ('east', wall_1b), 
                                 ('north', wall_1b), ('west', wall_1b), 
