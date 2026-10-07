@@ -3,28 +3,35 @@
 Python code for the calculation of the (24 h) periodic thermal characteristics of
 building components and spaces, implementing the methods from **ISO 13786**.
 
-Based on the code by Nicola Meoli from the archive
-[https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components),
-translated to English and extended by the class `Space`.
+The code is based on [Nicola Meolis' archive](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components). It
+was translated to English, extended by the class `Space` and Sphinx docs and refined
+in various places.
 
 This project is **not** an official ISO publication and is not endorsed by ISO.
 The ISO 13786 standard itself remains copyrighted and must be obtained from ISO
 or a national standards body.
 
 
-## Usage
-### Simple example for a wall
-After installing from the clone directory
+## Installation
+Install Python, open a terminal, go to the directory of the cloned repository
+and run
+
 ```
 pip install .
 ```
-and then importing
+
+
+## Usage
+### Simple example for a wall
+Import the package.
+
 ```python
 from pyiso13786 import Material, Layer, Construction, Space
 from pyiso13786 import material_db as mat
 ```
 
-Create the Layers of a compund wall
+Create the Layers of a compund wall.
+
 ```python
 gipsputz = Layer(
     name="Gipsputz",
@@ -53,6 +60,7 @@ print(my_wall.periodic_thermal_transmittance())
 gives `0.???`
 
 ### Plotting a comparison between two Walls:
+
 ```python
 from pyiso13786 import plot_bar_chart_comparison
 
@@ -98,6 +106,7 @@ print(f"C_R/A_NGF,  w/ depth limit: {room_restricted.thermal_capacity():.3f}")
 ```
 
 ## Documentation
+
 The project now includes a Sphinx documentation tree under [docs](docs). Build it locally with:
 
 ```bash
@@ -117,5 +126,7 @@ This project:
 - Is **not** an official ISO publication.
 - Is **not** endorsed or approved by ISO.
 - Does **not** include the text of the ISO standard.
+
+## License
 
 The code and documentation in this repository are provided under the project’s open‑source license (see `LICENSE`). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
