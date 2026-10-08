@@ -125,4 +125,4 @@ This project:
 
 ## License
 
-The code and documentation in this repository are provided under the project’s open‑source license (see [LICENSE](./LICENSE)). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
+The code and documentation in this repository are provided under the project’s open‑source license (see [LICENSE](LICENSE.txt#mit-license)). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
