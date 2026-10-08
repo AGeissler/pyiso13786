@@ -2,9 +2,7 @@
 
 Python code for the calculation of the (24 h) periodic thermal characteristics of building components and spaces, implementing the methods from **ISO 13786**.
 
-The code is based on [Nicola Meolis' archive](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components). It
-was translated to English, extended by the class `Space` and Sphinx docs and refined
-in various places.
+The code is based on [Nicola Meolis' archive](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components). It was translated to English, extended by the class `Space` and Sphinx docs and refined in various places.
 
 This project is **not** an official ISO publication and is not endorsed by ISO. The ISO 13786 standard itself remains copyrighted and must be obtained from ISO or a national standards body.
 
