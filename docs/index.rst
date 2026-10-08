@@ -4,7 +4,7 @@ pyiso13786 documentation
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
    :start-line: 2
-   :end-line: 12
+   :end-line: 9
 
 
 .. grid::
@@ -54,8 +54,8 @@ Installation
 ------------
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 15
-   :end-line: 22
+   :start-line: 12
+   :end-line: 18
 
 
 Legal / Intellectual Property
@@ -63,16 +63,16 @@ Legal / Intellectual Property
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 120
-   :end-line: 128
+   :start-line: 116
+   :end-line: 124
 
 
 License
 -------
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 131
-   :end-line: 132
+   :start-line: 127
+   :end-line: 128
 
 
 Indices and tables

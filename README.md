@@ -1,20 +1,16 @@
 # pyiso13786 – Python implementation of ISO 13786 methods
 
-Python code for the calculation of the (24 h) periodic thermal characteristics of
-building components and spaces, implementing the methods from **ISO 13786**.
+Python code for the calculation of the (24 h) periodic thermal characteristics of building components and spaces, implementing the methods from **ISO 13786**.
 
 The code is based on [Nicola Meolis' archive](https://github.com/sononicola/Static-and-Dynamic-thermal-characterics-of-buildings-components). It
 was translated to English, extended by the class `Space` and Sphinx docs and refined
 in various places.
 
-This project is **not** an official ISO publication and is not endorsed by ISO.
-The ISO 13786 standard itself remains copyrighted and must be obtained from ISO
-or a national standards body.
+This project is **not** an official ISO publication and is not endorsed by ISO. The ISO 13786 standard itself remains copyrighted and must be obtained from ISO or a national standards body.
 
 
 ## Installation
-Install Python, open a terminal, go to the directory of the cloned repository
-and run
+Install Python, open a terminal, go to the directory of the cloned repository and run
 
 ```
 pip install .
@@ -23,11 +19,11 @@ pip install .
 
 ## Usage
 ### Simple example for a wall
-Import the package.
+Import package classes and the embedded material data.
 
 ```python
 from pyiso13786 import Material, Layer, Construction, Space
-from pyiso13786 import material_db as mat
+from pyiso13786.material_db import material_db as mat
 ```
 
 Create the Layers of a compund wall.
@@ -57,7 +53,7 @@ Finally, for example:
 ```python
 print(my_wall.periodic_thermal_transmittance())
 ```
-gives `0.???`
+gives `1.314` W/(m2 K) for the absolute value (modulus) of the periodic thermal transmittance.
 
 ### Plotting a comparison between two Walls:
 
@@ -107,7 +103,7 @@ print(f"C_R/A_NGF,  w/ depth limit: {room_restricted.thermal_capacity():.3f}")
 
 ## Documentation
 
-The project now includes a Sphinx documentation tree under [docs](docs). Build it locally with:
+The project includes a Sphinx documentation tree under [docs](./docs). Build it locally with:
 
 ```bash
 pip install -e .[docs]
@@ -129,4 +125,4 @@ This project:
 
 ## License
 
-The code and documentation in this repository are provided under the project’s open‑source license (see `LICENSE`). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
+The code and documentation in this repository are provided under the project’s open‑source license (see [LICENSE](./LICENSE)). Any use of this software is subject to that license and does not grant any rights to reproduce or redistribute the ISO standard itself.
