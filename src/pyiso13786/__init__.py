@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: GPL-3.0-or-later
 from .__about__ import __version__
 
 __all__ = [
