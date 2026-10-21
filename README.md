@@ -27,51 +27,77 @@ from pyiso13786.material_db import material_db as mat
 Create the Layers of a compund wall.
 
 ```python
-gipsputz = Layer(
-    name="Gipsputz",
+gypsum_plaster_015 = Layer(
+    name="gypsum plaster",
     thickness=0.015,
-    material=mat.gipsputz
+    material=mat.gypsum_plaster
 )
-kalksandstein = Layer(
-    name="Kalksandstein mittel",
+calcium_silicate_brick = Layer(
+    name="calcium silicate brick medium density",
     thickness=0.125,
-    material=mat.kalksandstein_md
+    material=mat.calcium_silicate_md
 )
-stahlbeton = Layer(
-    name="Stahlbeton",
+reinforced_concrete = Layer(
+    name="reinforced concrete",
     thickness=0.18,
-    material=mat.stahlbeton
+    material=mat.reinforced_concrete
 )
 ```
 Then set up a wall construction
 ```python
-my_wall = Construction(name="mine", layers=[gipsputz, kalksandstein, gipsputz])
+my_wall = Construction(name="mine",
+                       layers=[gypsum_plaster_015,
+                               calcium_silicate_brick,
+                               gypsum_plaster_015])
 ```
-Finally, for example:
+Finally, for example ('my_wall.periodic_thermal_transmittance()'):
 ```python
-print(my_wall.periodic_thermal_transmittance())
+print(f"Absolute value (modulus) of the periodic thermal transmittance: {my_wall.periodic_thermal_transmittance():.3f} W/(m2 K)")
 ```
-gives `1.314` W/(m2 K) for the absolute value (modulus) of the periodic thermal transmittance.
 
-### Plotting a comparison between two Walls:
+### Plot a comparison between two Walls
 
 ```python
 from pyiso13786 import plot_bar_chart_comparison
 
-my_wall1 = Construction(name="mine", layers=[gipsputz, kalksandstein, gipsputz])
-my_wall2 = Construction(name="mine", layers=[gipsputz, stahlbeton, gipsputz])
+my_wall1 = Construction(name="csb wall",
+                        layers=[gypsum_plaster_015,
+                                calcium_silicate_brick,
+                                gypsum_plaster_015])
+my_wall2 = Construction(name="rc wall",
+                        layers=[gypsum_plaster_015,
+                                reinforced_concrete,
+                                gypsum_plaster_015,])
 plot_bar_chart_comparasion([my_wall1, my_wall2], latex=True)
 plt.show()
 ```
-### Calculating room thermal capacity
 
-Set up a room using class 'Space' after defining some additional construction
+### Calculate room thermal capacity
+
+Set up a room using class 'Space' after defining some additional layer and construction
 types.
 
 ```python
-window = Construction(name="window", layers=[glass_006], partition=False)
+glass_006 = Layer(name="glass",
+                  thickness=0.006,
+                  material=mat.glass
+)
+screed_05 = Layer(name="screed",
+               thickness=0.05,
+               material=mat.screed_me
+)
+impact_sound_insulation_02 =  Layer(name="impact sound insulation",
+                                    thickness=0.02,
+                                    material=mat.impact_sound_insulation_me
+)
+window = Construction(name="window",
+                      layers=[glass_006],
+                      partition=False)
 floor = Construction(name="floor",
-                     layers=[unterlagsboden_me, trittschalldaemmung_me, beton_me])
+                     layers=[screed_05, 
+                             impact_sound_insulation_02,
+                             reinforced_concrete])
+
 my_room = Space(name="my room", width=5.0, height=2.8, depth=4.0,
                 construction_list=[('ext', my_wall),
                                    ('window', window),
