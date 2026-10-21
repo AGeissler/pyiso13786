@@ -63,16 +63,16 @@ Legal / Intellectual Property
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 114
-   :end-line: 122
+   :start-line: 140
+   :end-line: 149
 
 
 License
 -------
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 125
-   :end-line: 126
+   :start-line: 151
+   :end-line: 152
 
 
 Indices and tables
