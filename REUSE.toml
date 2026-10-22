@@ -40,6 +40,12 @@ precedence = "override"
 SPDX-FileCopyrightText = "2017 Free Software Foundation Europe e.V. <https://fsfe.org>"
 SPDX-License-Identifier = "CC-BY-SA-4.0"
 
+ [[annotations]]
+ path = "example_data/*.csv"
+ precedence = "override"
+ SPDX-FileCopyrightText = "None"
+ SPDX-License-Identifier = "Unlicense"
+
 [[annotations]]
 path = "src/pyiso13786/__about__.py"
 precedence = "override"
