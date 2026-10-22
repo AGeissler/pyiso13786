@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: GPL-3.0-or-later
 from dataclasses import dataclass
 
 from pyiso13786 import Material

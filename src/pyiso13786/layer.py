@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2020 Nicola Meoli and 2024 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: GPL-3.0-or-later
 import math
 from dataclasses import dataclass
 from typing import Optional

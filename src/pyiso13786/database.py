@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: GPL-3.0-or-later
 """Database class to manage material, layer, construction system and space
    data for pyiso13796 package."""
 import os

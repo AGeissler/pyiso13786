@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2020 Nicola Meoli and 2024 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: MIT
 from .construction import Construction
 import pandas as pd
 import numpy as np
