@@ -4,7 +4,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 -->
 # pyiso13786 – Python implementation of ISO 13786 methods
 
-[![REUSE status](https://api.reuse.software/badge/github.com/AGeissler/esprsim)](https://api.reuse.software/info/github.com/AGeissler/esprsim)
+[![REUSE status](https://api.reuse.software/badge/github.com/AGeissler/pyiso13786)](https://api.reuse.software/info/github.com/AGeissler/pyiso13786)
 
 Python code for the calculation of the (24 h) periodic thermal characteristics of building components and spaces, implementing the methods from **ISO 13786**.
 
