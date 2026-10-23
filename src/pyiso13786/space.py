@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2024 Achim Geissler <achim.geissler@acatalepsy.ch>
+# SPDX-License-Identifier: GPL-3.0-or-later
 """A class for a box-like space.
 
 Width x height (w x h + d x h) is the internal area of the external wall

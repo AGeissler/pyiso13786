@@ -3,8 +3,8 @@ pyiso13786 documentation
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 2
-   :end-line: 7
+   :start-line: 6
+   :end-line: 13
 
 
 .. grid::
@@ -54,8 +54,8 @@ Installation
 ------------
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 10
-   :end-line: 16
+   :start-line: 16
+   :end-line: 22
 
 
 Legal / Intellectual Property
@@ -63,8 +63,8 @@ Legal / Intellectual Property
 
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
-   :start-line: 140
-   :end-line: 149
+   :start-line: 146
+   :end-line: 155
 
 
 License

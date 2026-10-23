@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: None
+# SPDX-License-Identifier: Unlicense
+
 [build-system]
     requires = [
         "setuptools>=77.0.3",

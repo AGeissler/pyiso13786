@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2023 Free Software Foundation Europe e.V. <https://fsfe.org>
+#
+# SPDX-License-Identifier: CC0-1.0
+
+version = 1
+
+[[annotations]]
+path = ".gitignore"
+precedence = "override"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "Unlicense"
+
+[[annotations]]
+path = ".pre-commit-config.yaml"
+precedence = "override"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "Unlicense"
+
+ [[annotations]]
+ path = ".readthedocs.yaml"
+ precedence = "override"
+ SPDX-FileCopyrightText = "None"
+ SPDX-License-Identifier = "Unlicense"
+
+[[annotations]]
+path = "docs/_static/*.css"
+precedence = "override"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "Unlicense"
+
+[[annotations]]
+path = ["docs/*.rst", "examples/*.rst"]
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Free Software Foundation Europe e.V. <https://fsfe.org>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+[[annotations]]
+path = "docs/pyiso13786/*.rst"
+precedence = "override"
+SPDX-FileCopyrightText = "2017 Free Software Foundation Europe e.V. <https://fsfe.org>"
+SPDX-License-Identifier = "CC-BY-SA-4.0"
+
+ [[annotations]]
+ path = "example_data/*.csv"
+ precedence = "override"
+ SPDX-FileCopyrightText = "None"
+ SPDX-License-Identifier = "Unlicense"
+
+[[annotations]]
+path = "src/pyiso13786/__about__.py"
+precedence = "override"
+SPDX-FileCopyrightText = "None"
+SPDX-License-Identifier = "Unlicense"
