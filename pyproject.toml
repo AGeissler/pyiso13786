@@ -65,6 +65,7 @@ docs = [
     "sphinx-gallery",
     "sphinx-inline-tabs",
     "sphinx-code-include",
+    "myst-parser",
     "pypandoc",
 ]
 
