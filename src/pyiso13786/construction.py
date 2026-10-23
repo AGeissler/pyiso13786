@@ -583,7 +583,8 @@ class Construction:
         return kappa/3600  # Wh/(m2 K)
 
     def periodic_thermal_transmittance(self) -> float:
-        r"""Periodic thermal transmittance calculated acc. to eqn. :eq:`eq. (24)`.
+        r"""Absolut value (modulus) of periodic thermal transmittance calculated acc.
+        to eqn. :eq:`eq. (24)` in :math:`\text{W/(m}^{2 }\text{K)}`.
 
         .. math::
            :label: eq. (24)
@@ -595,7 +596,7 @@ class Construction:
         # Modulus (absolute value) |Y12|.
         Y12 = np.sqrt((Y12.real) ** 2 + (Y12.imag) ** 2)
 
-        return Y12
+        return Y12  # W/(m2 K)
 
     def decrement_factor(self) -> float:
         r"""Decrement factor using the periodic thermal transmittance and overall

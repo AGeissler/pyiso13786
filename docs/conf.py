@@ -16,11 +16,7 @@ from sphinx_gallery.sorting import FileNameSortKey
 
 ROOT = Path(__file__).resolve().parents[1]
 
-SRC = ROOT / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
-
-SRC = ROOT / "src/ISO_13786"
+SRC = ROOT / "src/pyiso13786"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
@@ -36,10 +32,10 @@ pyvista.BUILDING_GALLERY = True
 os.environ["PYVISTA_BUILDING_GALLERY"] = "true"
 
 # ISO_13786: turn off logging if set to "false".
-os.environ["ISO_13786_VERBOSE"] = "false"
+os.environ["pyiso13786_VERBOSE"] = "false"
 
 # -- Project information -----------------------------------------------------
-project = "ISO_13786"
+project = "pyiso13786"
 year = datetime.date.today().year
 copyright = f"2026-{year}, Achim Geissler"
 author = "Achim Geissler"
@@ -56,6 +52,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
     "sphinx.ext.intersphinx",
+    "sphinx_codeautolink",
     "sphinx_inline_tabs",
     "sphinx_copybutton",
     "sphinx_design",
@@ -72,6 +69,8 @@ myst_enable_extensions = [
 ]
 source_suffix = {
     ".rst": "restructuredtext",
+    ".md": "markdown",
+    ".txt": "markdown",
 }
 sphinx_gallery_conf = {
     "examples_dirs": ["../examples"],
@@ -89,6 +88,7 @@ sphinx_gallery_conf = {
 intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
     "python": ("https://docs.python.org/3/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
 }
@@ -100,6 +100,8 @@ autodoc_default_options = {
     "undoc-members": False,
     "show-inheritance": True,
 }
+
+myst_heading_anchors = 3
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -120,9 +122,59 @@ plot_formats = ["png"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
-#html_theme = "pydata_sphinx_theme"
-html_title = "ISO 13786"
+#html_theme = "alabaster"
+html_theme = "pydata_sphinx_theme"
+html_title = "pyiso13786"
 
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
+
+html_theme_options = {
+    "icon_links": [
+        # {
+        #     "name": "Discussions",
+        #     "url": "https://github.com/AGeissler/esprsim/discussions",
+        #     "icon": "fa-solid fa-comment",
+        #     "type": "fontawesome",
+        # },
+        {
+            "name": "GitLab",
+            "url": "https://gitlab.fhnw.ch/GruppeBau/pyiso13786",
+            "icon": "fa-brands fa-gitlab",
+            "type": "fontawesome",
+        },
+        # {
+        #     "name": "GitHub",
+        #     "url": "https://github.com/AGeissler/esprsim",
+        #     "icon": "fa-brands fa-github",
+        #     "type": "fontawesome",
+        # },
+        # {
+        #     "name": "Read the Docs",
+        #     # "url": "https://readthedocs.org/projects/esprsim",
+        #     "url": "https://esprsim.readthedocs.io/en/latest",
+        #     "icon": "fa-solid fa-book",
+        #     "type": "fontawesome",
+        # },
+    ],
+    "logo": {
+        "text": "pyiso13786",
+        # "image_light": "_static/esplogosmall.bmp",
+        # "image_dark": "_static/esplogosmall.bmp",
+    },
+    "use_edit_page_button": True,
+}
+
+# html_context = {
+#     "github_user": "AGeissler",
+#     "github_repo": "esprsim",
+#     "github_version": "master",
+#     "doc_path": "docs/",
+# }
+
+html_context = {
+    "gitlab_user": "GruppeBau",
+    "gitlab_repo": "pyiso13786",
+    "gitlab_version": "master",
+    "doc_path": "docs/",
+}
