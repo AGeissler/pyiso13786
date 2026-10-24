@@ -52,7 +52,7 @@ dependencies = [
   "pandas",
   "numpy",
   "pathlib",
-  "pyvista",
+  "pyvista[all]",
 ]
 
 [project.optional-dependencies]

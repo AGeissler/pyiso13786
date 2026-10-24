@@ -42,7 +42,7 @@ project = "pyiso13786"
 year = datetime.date.today().year
 copyright = f"2026-{year}, Achim Geissler"
 author = "Achim Geissler"
-release = "3.0.1"
+release = "3.1.0"
 
 # -- General configuration ---------------------------------------------------
 
@@ -93,7 +93,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
     "python": ("https://docs.python.org/3/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    # "scipy": ("https://docs.scipy.org/doc/scipy/", None),
 }
 
 autosummary_generate = True
