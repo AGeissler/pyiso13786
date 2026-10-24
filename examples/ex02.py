@@ -28,31 +28,37 @@ from pyiso13786.material_db import material_db as mat
 # %%
 # Define necessary layers using available materials from
 # :class:`pyiso13786.material_db.MaterialDataBase`.
-daemmung190 = Layer(
-    name="Daemmung hoher Dichte",
+insulation190 = Layer(
+    name="high density insulation",
     thickness=0.10,
-    material=mat.daemmung190
+    material=mat.insulation190
 )
-gipsputz = Layer(
-    name="Gipsputz",
+gypsum_plaster = Layer(
+    name="gypsum plaster",
     thickness=0.015,
-    material=mat.gipsputz
+    material=mat.gypsum_plaster
 )
-stahlbeton = Layer(
-    name="Stahlbeton",
+reinforced_concrete = Layer(
+    name="reinforced concrete",
     thickness=0.18,
-    material=mat.stahlbeton
+    material=mat.reinforced_concrete
 )
-porenbeton = Layer(
-    name="Porenbeton",
+aerated_concrete = Layer(
+    name="aerated concrete",
     thickness=0.25,
-    material=mat.porenbeton
+    material=mat.aerated_concrete
 )
 
 # %%
 # Define two construction systems, layers inside-to-outside.
-wall_3c = Construction(name="3c", layers=[gipsputz, stahlbeton, daemmung190, gipsputz])
-wall_3d = Construction(name="3d", layers=[gipsputz, porenbeton, daemmung190, gipsputz])
+wall_3c = Construction(name="3c", layers=[gypsum_plaster,
+                                          reinforced_concrete,
+                                          insulation190,
+                                          gypsum_plaster])
+wall_3d = Construction(name="3d", layers=[gypsum_plaster,
+                                          aerated_concrete,
+                                          insulation190,
+                                          gypsum_plaster])
 
 # %%
 # Show property comparison.

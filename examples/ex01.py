@@ -26,64 +26,76 @@ from pyiso13786.material_db import material_db as mat
 # %%
 # Define necessary layers using available materials from
 # :class:`pyiso13786.material_db.MaterialDataBase`.
-fassade = Layer(
-    name="Fassade",
+facade = Layer(
+    name="facade",
     thickness=0.008,
-    material=mat.glas
+    material=mat.glass
 )
-gipskarton = Layer(
-    name="Gipskarton",
+plasterboard = Layer(
+    name="plasterboard",
     thickness=0.0125,
-    material=mat.gipskarton
+    material=mat.plasterboard
 )
 xlam = Layer( # https://xlam.co/
     name="X-LAM",
     thickness=0.096,
     material=mat.xlam
 )
-daemmung190 = Layer(
-    name="Daemmung hoher Dichte",
+insulation190 = Layer(
+    name="high density insulation",
     thickness=0.10,
-    material=mat.daemmung190
+    material=mat.insulation190
 )
-gipsputz = Layer(
-    name="Gipsputz",
+gypsum_plaster = Layer(
+    name="gypsum plaster",
     thickness=0.015,
-    material=mat.gipsputz
+    material=mat.gypsum_plaster
 )
-kalksandstein = Layer(
-    name="Kalksandstein mittel",
+calcium_silicate_md = Layer(
+    name="calcium silicate brick medium density",
     thickness=0.125,
-    material=mat.kalksandstein_md
+    material=mat.calcium_silicate_md
 )
-stahlbeton = Layer(
-    name="Stahlbeton",
+reinforced_concrete = Layer(
+    name="reinforced concrete",
     thickness=0.18,
-    material=mat.stahlbeton
+    material=mat.reinforced_concrete
 )
-testbeton = Layer( # https://quickfield.com/advanced/iso_13786_2007_case_d1.htm
-    name="Testbeton",
+test_concrete = Layer( # https://quickfield.com/advanced/iso_13786_2007_case_d1.htm
+    name="test concrete",
     thickness=0.20,
-    material=mat.testbeton
+    material=mat.test_concrete
 )
-porenbeton = Layer(
-    name="Porenbeton",
+aerated_concrete = Layer(
+    name="aerated concrte",
     thickness=0.25,
-    material=mat.porenbeton
+    material=mat.aerated_concrete
 )
 
 # %%
 # Define required construction systems, layers are given inside-to-outside.
-window = Construction(name="window", layers=[fassade])
-wall_0a = Construction(name="0a", layers=[testbeton])
-wall_1a = Construction(name="1a", layers=[fassade])
-wall_1b = Construction(name="1b", layers=[gipsputz, kalksandstein, gipsputz])
-wall_3c = Construction(name="3c", layers=[gipsputz, stahlbeton, daemmung190, gipsputz])
-wall_3d = Construction(name="3d", layers=[gipsputz, porenbeton, daemmung190, gipsputz])
+window = Construction(name="window", layers=[facade])
+wall_0a = Construction(name="0a", layers=[test_concrete])
+wall_1a = Construction(name="1a", layers=[facade])
+wall_1b = Construction(name="1b", layers=[gypsum_plaster,
+                                          calcium_silicate_md,
+                                          gypsum_plaster])
+wall_3c = Construction(name="3c", layers=[gypsum_plaster,
+                                          reinforced_concrete,
+                                          insulation190,
+                                          gypsum_plaster])
+wall_3d = Construction(name="3d", layers=[gypsum_plaster,
+                                          aerated_concrete,
+                                          insulation190,
+                                          gypsum_plaster])
 
-floor_1a = Construction(name="floor", layers=[gipsputz, stahlbeton, gipsputz],
+floor_1a = Construction(name="floor", layers=[gypsum_plaster,
+                                              reinforced_concrete,
+                                              gypsum_plaster],
                         type="floor")
-ceiling_1a = Construction(name="ceiling", layers=[gipsputz, stahlbeton, gipsputz],
+ceiling_1a = Construction(name="ceiling", layers=[gypsum_plaster,
+                                                  reinforced_concrete,
+                                                  gypsum_plaster],
                           type="ceiling")
 
 # %%
@@ -101,6 +113,6 @@ room_restricted = Space(name="room_restricted", width=6.5, height=2.6, depth=8.5
              )
 
 # %%
-# Evaluate thermal capacity of the two rooms.
-print(f"C_R/A_NGF, ohne Begrenzung: {room.thermal_capacity():.3f} Wh/(m2 K)")
-print(f"C_R/A_NGF,  mit Begrenzung: {room_restricted.thermal_capacity():.3f} Wh/(m2 K)")
+# Evaluate thermal capacity of the rooms with and without size (depth) limit.
+print(f"C_R/A_NGF, w/o room size limit: {room.thermal_capacity():.3f} Wh/(m2 K)")
+print(f"C_R/A_NGF, w/ room size limit: {room_restricted.thermal_capacity():.3f} Wh/(m2 K)")
