@@ -42,7 +42,6 @@ project = "pyiso13786"
 year = datetime.date.today().year
 copyright = f"2026-{year}, Achim Geissler"
 author = "Achim Geissler"
-release = "3.1.0"
 
 # -- General configuration ---------------------------------------------------
 
